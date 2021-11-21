@@ -12,3 +12,4 @@ The intent of this open-sourced project is to provide a simple and generic wrapp
 2. Transcribe audio stream.
 
 In terms of my personal background, I am the Senior AI Scientist in Voicegain (specializing in Speech Recognition), but I wrote this personal project without any bias. As mentioned, the goal of this project is to enable more people in the community to explore STT without too much trouble of dealing with varied providers, APIs and documentations. 
+
