@@ -1,14 +1,39 @@
 import base64
+import os
+from asr_bridge.audio_transcoder.audio_file import AudioFile
+from asr_bridge.exceptions.exceptions import AudioException
 
 
 class Audio:
-    def __init__(self, file=None, uri=None):
+    def __init__(self, file):
         self._file = file
-        self._uri = uri
+        self.audio_file = AudioFile(file)
+        if not self.audio_file.is_valid_audio():
+            raise AudioException("Audio file is not valid")
 
     @property
-    def uri(self):
-        return self._uri
+    def file_size(self):
+        return os.path.getsize(self._file)
+
+    @property
+    def file_extension(self):
+        return os.path.splitext(self._file)[-1]
+
+    @property
+    def duration(self):
+        return self.audio_file.duration
+
+    @property
+    def channels(self):
+        return self.audio_file.channels
+
+    @property
+    def codec(self):
+        return self.audio_file.codec
+
+    @property
+    def sample_rate(self):
+        return self.audio_file.sample_rate
 
     @property
     def byte_array_content(self):
@@ -24,25 +49,24 @@ class Audio:
             return base64.b64encode(byte_array_content).decode()
         return None
 
+    @property
+    def file(self):
+        return self._file
+
 
 class Config:
-    def __init__(self, encoding=None, sample_rate=None, language=None):
-        self.encoding = encoding
-        self.sample_rate = sample_rate
+    def __init__(self, language=None, google_storage_bucket=None):
         self.language = language
+        self.google_storage_bucket = google_storage_bucket
 
 
 class Result:
-    def __init__(self, alternatives):
-        self.alternatives = alternatives
-
-    def get_best_transcript(self):
-        if self.alternatives:
-            return self.alternatives[0].transcript
-        return ""
-
-
-class Alternative:
     def __init__(self, transcript, confidence):
-        self.transcript = transcript
-        self.confidence = confidence
+        self._transcript = transcript
+        self._confidence = confidence
+
+    @property
+    def transcript(self):
+        if self._transcript:
+            return self._transcript
+        return ""
