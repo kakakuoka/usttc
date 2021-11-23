@@ -49,7 +49,7 @@ class AwsClient(AsrClient):
 
     @staticmethod
     def from_key_file(filename: str, *args, **kwargs):
-        raise ConfigurationException("Google ASR: Use key authentication")
+        raise ConfigurationException("AWS ASR: Use key authentication")
 
     @staticmethod
     def from_key(key: str, *args, **kwargs):
