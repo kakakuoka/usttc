@@ -40,6 +40,8 @@ class GoogleClient(AsrClient):
             encoding=audio.codec.name,
             sample_rate_hertz=audio.sample_rate,
             language_code=config.language,
+            model="video",
+            use_enhanced=True
         )
 
         operation = self.client.long_running_recognize(config=config, audio=recog_audio)

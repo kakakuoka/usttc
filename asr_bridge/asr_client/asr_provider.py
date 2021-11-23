@@ -9,3 +9,4 @@ class AsrProvider(Enum):
     REV = 5
     DEEPGRAM = 6
     IBM_WATSON = 7
+    ASSEMBLY_AI = 8

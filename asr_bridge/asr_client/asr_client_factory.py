@@ -1,6 +1,7 @@
 from asr_bridge.asr_client.asr_provider import AsrProvider
 from asr_bridge.asr_client.google_client import GoogleClient
 from asr_bridge.asr_client.voicegain_client import VoicegainClient
+from asr_bridge.asr_client.aws_client import AwsClient
 
 
 class AsrClientFactory:
@@ -19,3 +20,5 @@ class AsrClientFactory:
             return GoogleClient
         if asr_provider == AsrProvider.VOICEGAIN:
             return VoicegainClient
+        if asr_provider == AsrProvider.AMAZON_AWS:
+            return AwsClient

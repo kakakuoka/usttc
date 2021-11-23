@@ -17,7 +17,8 @@ class AudioFile:
                 self.channels = int(audio_stream["channels"])
                 self.sample_rate = int(audio_stream["sample_rate"])
                 self.codec = self._get_audio_format(audio_stream["codec_name"])
-                self.valid = True
+                if self.codec:
+                    self.valid = True
         except:
             pass
 
