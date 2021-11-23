@@ -2,7 +2,7 @@
 
 [This project is in progress]
 
-The accuracy of Speech-to-test (STT) improved significantly during the past few years. There are a lot of cloud STT providers on the market, including some big players like Google, AWS and Microsoft Azure, and a few ambitious new providers like Voicegain and Deepgram. 
+The accuracy of Speech-to-text (STT) improved significantly during the past few years. There are a lot of cloud STT providers on the market, including some big players like Google, AWS and Microsoft Azure, and a few ambitious new providers like Voicegain and Deepgram. 
 
 As a Speech Recognition Scientist, I have reviewed many providers in the last few years, and I have noticed that each provider has its unique features. However, more than 95% of the users do not necessarily need those additional features, especially in the early stage. Their requirements are very simple and basic -- getting transcript of the provided audio. 
 
