@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from asr_bridge.messages import *
+from uni_transcribe.messages import *
 
 
 class AsrClient(ABC):

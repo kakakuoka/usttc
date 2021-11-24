@@ -1,6 +1,6 @@
-from asr_bridge.asr_client.asr_client import AsrClient
-from asr_bridge.messages import *
-from asr_bridge.exceptions.exceptions import ConfigurationException, AudioException
+from uni_transcribe.asr_client.asr_client import AsrClient
+from uni_transcribe.messages import *
+from uni_transcribe.exceptions.exceptions import ConfigurationException, AudioException
 import azure.cognitiveservices.speech as speechsdk
 
 

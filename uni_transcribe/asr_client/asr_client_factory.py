@@ -1,12 +1,12 @@
-from asr_bridge.asr_client.asr_provider import AsrProvider
-from asr_bridge.asr_client.google_client import GoogleClient
-from asr_bridge.asr_client.voicegain_client import VoicegainClient
-from asr_bridge.asr_client.aws_client import AwsClient
-from asr_bridge.asr_client.assembly_ai_client import AssemblyAiClient
-from asr_bridge.asr_client.azure_client import AzureClient
-from asr_bridge.asr_client.deepgram_client import DeepgramClient
-from asr_bridge.asr_client.rev_client import RevClient
-from asr_bridge.asr_client.watson_client import WatsonClient
+from uni_transcribe.asr_client.asr_provider import AsrProvider
+from uni_transcribe.asr_client.google_client import GoogleClient
+from uni_transcribe.asr_client.voicegain_client import VoicegainClient
+from uni_transcribe.asr_client.aws_client import AwsClient
+from uni_transcribe.asr_client.assembly_ai_client import AssemblyAiClient
+from uni_transcribe.asr_client.azure_client import AzureClient
+from uni_transcribe.asr_client.deepgram_client import DeepgramClient
+from uni_transcribe.asr_client.rev_client import RevClient
+from uni_transcribe.asr_client.watson_client import WatsonClient
 
 
 class AsrClientFactory:

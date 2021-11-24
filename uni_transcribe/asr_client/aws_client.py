@@ -1,10 +1,10 @@
-from asr_bridge.asr_client.asr_client import AsrClient
-from asr_bridge.messages import *
-from asr_bridge.exceptions.exceptions import ConfigurationException, AudioException
+from uni_transcribe.asr_client.asr_client import AsrClient
+from uni_transcribe.messages import *
+from uni_transcribe.exceptions.exceptions import ConfigurationException, AudioException
 import time
 import boto3
 import requests
-from asr_bridge.utils import generate_random_str
+from uni_transcribe.utils import generate_random_str
 
 
 class AwsClient(AsrClient):

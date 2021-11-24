@@ -1,7 +1,7 @@
-from asr_bridge.asr_client.asr_client import AsrClient
-from asr_bridge.messages import *
-from asr_bridge.audio_transcoder.audio_file import AudioFormat
-from asr_bridge.exceptions.exceptions import AudioException
+from uni_transcribe.asr_client.asr_client import AsrClient
+from uni_transcribe.messages import *
+from uni_transcribe.audio_transcoder.audio_file import AudioFormat
+from uni_transcribe.exceptions.exceptions import AudioException
 from voicegain_speech import ApiClient
 from voicegain_speech import Configuration
 from voicegain_speech import TranscribeApi, DataApi

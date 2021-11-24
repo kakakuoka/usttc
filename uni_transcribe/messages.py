@@ -1,7 +1,7 @@
 import base64
 import os
-from asr_bridge.audio_transcoder.audio_file import AudioFile
-from asr_bridge.exceptions.exceptions import AudioException
+from uni_transcribe.audio_transcoder.audio_file import AudioFile
+from uni_transcribe.exceptions.exceptions import AudioException
 
 
 class Audio:
