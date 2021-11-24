@@ -2,6 +2,8 @@ from uni_transcribe.asr_client.asr_client import AsrClient
 from uni_transcribe.messages import *
 from uni_transcribe.exceptions.exceptions import ConfigurationException, AudioException
 from uni_transcribe.utils import generate_random_str
+from uni_transcribe.stream.stream_results import StreamResult, StreamResults
+from uni_transcribe.stream.stream import Stream
 from google.cloud import speech
 from google.cloud import storage
 
@@ -32,8 +34,39 @@ class GoogleClient(AsrClient):
         else:
             raise AudioException("Google does not support audio longer than 480 minutes")
 
-    def stream(self):
-        pass
+    def stream(self, stream: Stream, config: Config):
+
+        recog_config = speech.RecognitionConfig(
+            encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
+            sample_rate_hertz=16000,
+            language_code=config.language,
+        )
+        streaming_config = speech.StreamingRecognitionConfig(
+            config=recog_config,
+            interim_results=True
+        )
+
+        audio_generator = stream.generator()
+        requests = (
+            speech.StreamingRecognizeRequest(audio_content=content)
+            for content in audio_generator
+        )
+        responses = self.client.streaming_recognize(streaming_config, requests)
+
+        def parse_response():
+            for response in responses:
+                if not response.results:
+                    continue
+                result = response.results[0]
+                if not result.alternatives:
+                    continue
+                transcript = result.alternatives[0].transcript
+                if not result.is_final:
+                    yield StreamResult(transcript, False)
+                else:
+                    yield StreamResult(transcript, True)
+
+        return StreamResults(parse_response())
 
     def _async_recognize(self, config: Config, audio: Audio, recog_audio):
         config = speech.RecognitionConfig(

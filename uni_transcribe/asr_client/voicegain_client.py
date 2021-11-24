@@ -2,10 +2,14 @@ from uni_transcribe.asr_client.asr_client import AsrClient
 from uni_transcribe.messages import *
 from uni_transcribe.audio_transcoder.audio_file import AudioFormat
 from uni_transcribe.exceptions.exceptions import AudioException
+from uni_transcribe.stream.stream import Stream
 from voicegain_speech import ApiClient
 from voicegain_speech import Configuration
 from voicegain_speech import TranscribeApi, DataApi
 import time
+import asyncio
+import websockets
+import threading
 
 
 OFFLINE_FILE_SIZE_LIMIT = 150 * 1024 * 1024
@@ -35,8 +39,12 @@ class VoicegainClient(AsrClient):
             self.data_api.data_delete(uuid=object_id)
             return result
 
-    def stream(self):
-        pass
+    def stream(self, stream: Stream, config: Config):
+        audio_ws_url, result_ws_url = self._start_async_web_socket_stream()
+        result_ws_thread = threading.Thread(target=self._receive_result_thread, args=(result_ws_url, ))
+        result_ws_thread.start()
+        asyncio.run(self._stream_audio(stream, audio_ws_url))
+        result_ws_thread.join()
 
     def _sync_transcribe(self, config: Config, audio: Audio):
         audio_base64 = audio.base64_content
@@ -97,6 +105,74 @@ class VoicegainClient(AsrClient):
                 return result
             else:
                 pass
+
+    def _start_async_web_socket_stream(self):
+        async_transcription_request = {
+            "sessions": [
+                {
+                    "asyncMode": "REAL-TIME",
+                    "websocket": {
+                        "adHoc": True,
+                        "useSTOMP": False,
+                        "minimumDelay": 0
+                    },
+                    "content": {
+                        "incremental": ['words'],
+                        "full": []
+                    }
+                }
+            ],
+            "audio": {
+                "source": {
+                    "stream": {
+                        "protocol": "WEBSOCKET"
+                    }
+                },
+                "format": "L16",
+                "channel": "mono",
+                "rate": 16000
+            }
+        }
+        async_transcribe_init_response = self.transcribe_api.asr_transcribe_async_post(
+            async_transcription_request=async_transcription_request
+        )
+        audio_ws_url = async_transcribe_init_response.audio.stream.websocket_url
+        result_ws_url = async_transcribe_init_response.sessions[0].websocket.url
+        return audio_ws_url, result_ws_url
+
+    @staticmethod
+    async def _stream_audio(stream: Stream, audio_ws_url: str):
+        async with websockets.connect(audio_ws_url,
+                                      # we need to lower the buffer size - otherwise the sender will buffer for too long
+                                      write_limit=480, compression=None) as websocket:
+            try:
+                for byte_buf in stream.generator():
+                    await websocket.send(byte_buf)
+                print("Waiting 5 seconds for processing to finish...", flush=True)
+                time.sleep(5.0)
+                print("done waiting", flush=True)
+                await websocket.close()
+            except Exception as e:
+                print("Exception when sending audio via websocket: " + str(e))
+
+    def _receive_result_thread(self, result_ws_url: str):
+        try:
+            asyncio.run(self._websocket_receive(result_ws_url))
+        except Exception as e:
+            print(e)
+
+    @staticmethod
+    async def _websocket_receive(result_ws_url: str):
+        async with websockets.connect(result_ws_url,
+                                      write_limit=480,
+                                      # compression needs to be disabled otherwise will buffer for too long
+                                      compression=None) as websocket:
+            try:
+                while True:
+                    msg = await websocket.recv()
+                    print(msg)
+            except Exception as e:
+                print(e)
 
     @staticmethod
     def from_key_file(filename: str, *args, **kwargs):

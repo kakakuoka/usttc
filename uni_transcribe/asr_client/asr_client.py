@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from uni_transcribe.messages import *
+from uni_transcribe.stream.stream import Stream
 
 
 class AsrClient(ABC):
@@ -9,7 +10,7 @@ class AsrClient(ABC):
         pass
 
     @abstractmethod
-    def stream(self):
+    def stream(self, stream: Stream, config: Config):
         pass
 
     @staticmethod

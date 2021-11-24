@@ -6,3 +6,6 @@ boto3==1.20.11
 azure-cognitiveservices-speech==1.19.0
 rev-ai==2.13.0
 requests==2.26.0
+PyAudio==0.2.11
+websockets==10.1
+ibm-watson==5.3.0
