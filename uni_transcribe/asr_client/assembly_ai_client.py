@@ -1,16 +1,17 @@
 from uni_transcribe.asr_client.asr_client import AsrClient
-from uni_transcribe.messages import *
+from uni_transcribe.config import Config
+from uni_transcribe.audio.audio_file import AudioFile
+from uni_transcribe.result.recognize_result import RecognizeResult
+from uni_transcribe.result.word import Word
 import requests
 import time
-from uni_transcribe.exceptions.exceptions import ConfigurationException, AudioException
-from uni_transcribe.utils import generate_random_str
 
 
 class AssemblyAiClient(AsrClient):
     def __init__(self, token):
         self.token = token
 
-    def recognize(self, config: Config, audio: Audio):
+    def recognize(self, config: Config, audio: AudioFile):
 
         def read_file(filename, chunk_size=5242880):
             with open(filename, 'rb') as _file:
@@ -34,9 +35,15 @@ class AssemblyAiClient(AsrClient):
         while True:
             time.sleep(5)
             polling_response = requests.get("https://api.assemblyai.com/v2/transcript/" + _id, headers=headers)
-            if polling_response.json()['status'] == 'completed':
-                transcript = polling_response.json()["text"]
-                return Result(transcript=transcript, confidence=1)
+            r = polling_response.json()
+            if r['status'] == 'completed':
+                transcript = r["text"]
+                words = []
+                for w in r["words"]:
+                    words.append(
+                        Word(text=w["text"], confidence=w["confidence"], start=w["start"], end=w["end"])
+                    )
+                return RecognizeResult(transcript=transcript, words=words)
 
     def stream(self):
         pass

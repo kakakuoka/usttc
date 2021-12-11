@@ -1,6 +1,8 @@
 from uni_transcribe.asr_client.asr_client import AsrClient
-from uni_transcribe.messages import *
-from uni_transcribe.audio_transcoder.audio_file import AudioFormat
+from uni_transcribe.config import Config
+from uni_transcribe.audio.audio_file import AudioFile
+from uni_transcribe.result.recognize_result import RecognizeResult
+from uni_transcribe.result.word import Word
 from uni_transcribe.exceptions.exceptions import AudioException
 from uni_transcribe.stream.stream import Stream
 from voicegain_speech import ApiClient
@@ -21,11 +23,8 @@ class VoicegainClient(AsrClient):
         self.transcribe_api = TranscribeApi(api_client)
         self.data_api = DataApi(api_client)
 
-    def recognize(self, config: Config, audio: Audio):
-        if audio.duration < 30 and audio.channels == 1 and audio.codec == AudioFormat.LINEAR16:
-            # use sync transcribe for short audio
-            return self._sync_transcribe(config, audio)
-        elif audio.file_size > OFFLINE_FILE_SIZE_LIMIT:
+    def recognize(self, config: Config, audio: AudioFile):
+        if audio.file_size > OFFLINE_FILE_SIZE_LIMIT:
             raise AudioException("Audio file size is larger than 150MB. Voicegain does not support that")
         else:
             data_object = self.data_api.data_file_post(file=audio.file)
@@ -46,28 +45,7 @@ class VoicegainClient(AsrClient):
         asyncio.run(self._stream_audio(stream, audio_ws_url))
         result_ws_thread.join()
 
-    def _sync_transcribe(self, config: Config, audio: Audio):
-        audio_base64 = audio.base64_content
-        response = self.transcribe_api.asr_transcribe_post(
-            sync_transcription_request={
-                "audio": {
-                    "source": {
-                        "inline": {
-                            "data": audio_base64
-                        }
-                    }
-                }
-            }
-        )
-        if response.result:
-            for alternative in response.result.alternatives:
-                return Result(
-                    transcript=alternative.utterance,
-                    confidence=alternative.confidence
-                )
-        return Result("", 1)
-
-    def _async_transcribe(self, config: Config, audio: Audio, audio_source):
+    def _async_transcribe(self, config: Config, audio: AudioFile, audio_source):
         async_transcription_request = {
             "sessions": [
                 {
@@ -75,6 +53,9 @@ class VoicegainClient(AsrClient):
                     "poll": {
                         "afterlife": 60000,
                         "persist": 0
+                    },
+                    "content": {
+                        "full": ["progress", "words", "transcript"]
                     }
                 }
             ],
@@ -101,7 +82,17 @@ class VoicegainClient(AsrClient):
             if poll_response_result.final:
                 # get to final
                 result_transcript = poll_response_result.transcript
-                result = Result(transcript=result_transcript, confidence=1)
+                words = []
+                if poll_response_result.words:
+                    for word in poll_response_result.words:
+                        words.append(Word(
+                            text=word.utterance,
+                            confidence=word.confidence,
+                            start=word.start,
+                            duration=word.duration,
+                            speaker=word.spk
+                        ))
+                result = RecognizeResult(transcript=result_transcript, words=words)
                 return result
             else:
                 pass

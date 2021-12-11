@@ -1,5 +1,8 @@
 from uni_transcribe.asr_client.asr_client import AsrClient
-from uni_transcribe.messages import *
+from uni_transcribe.config import Config
+from uni_transcribe.audio.audio_file import AudioFile, AudioFormat
+from uni_transcribe.result.recognize_result import RecognizeResult
+from uni_transcribe.result.word import Word
 from uni_transcribe.exceptions.exceptions import ConfigurationException, AudioException
 from uni_transcribe.utils import generate_random_str
 from uni_transcribe.stream.stream_results import StreamResult, StreamResults
@@ -15,13 +18,23 @@ class GoogleClient(AsrClient):
         self.client = client
         self.storage_client = storage_client
 
-    def recognize(self, config: Config, audio: Audio):
+    def recognize(self, config: Config, audio: AudioFile):
+        if audio.duration >= AUDIO_DURATION_LIMIT:
+            raise AudioException("Google does not support audio longer than 480 minutes")
+
+        convert_audio = False
+        if audio.codec not in {
+            AudioFormat.LINEAR16, AudioFormat.FLAC, AudioFormat.MULAW, AudioFormat.AMR
+        }:
+            audio = audio.convert()
+            convert_audio = True
+
         if audio.duration < 60:
             recog_audio = speech.RecognitionAudio(
                 content=audio.byte_array_content
             )
-            return self._async_recognize(config, audio, recog_audio)
-        elif audio.duration < AUDIO_DURATION_LIMIT:
+            result = self._async_recognize(config, audio, recog_audio)
+        else:
             if not config.google_storage_bucket:
                 raise ConfigurationException("Please provide google_storage_bucket in the config for long file")
             blob = self._upload_to_google_storage(config.google_storage_bucket, audio)
@@ -30,9 +43,10 @@ class GoogleClient(AsrClient):
             recog_audio.uri = gs_url
             result = self._async_recognize(config, audio, recog_audio)
             blob.delete()
-            return result
-        else:
-            raise AudioException("Google does not support audio longer than 480 minutes")
+
+        if convert_audio:
+            audio.delete()
+        return result
 
     def stream(self, stream: Stream, config: Config):
 
@@ -68,30 +82,33 @@ class GoogleClient(AsrClient):
 
         return StreamResults(parse_response())
 
-    def _async_recognize(self, config: Config, audio: Audio, recog_audio):
+    def _async_recognize(self, config: Config, audio: AudioFile, recog_audio):
         config = speech.RecognitionConfig(
             encoding=audio.codec.name,
             sample_rate_hertz=audio.sample_rate,
             language_code=config.language,
             model="video",
-            use_enhanced=True
+            use_enhanced=True,
+            enable_word_time_offsets=True
         )
 
         operation = self.client.long_running_recognize(config=config, audio=recog_audio)
         response = operation.result()
 
         transcripts = []
-        total_confidences = 0
+        words = []
         for result in response.results:
-            transcripts.append(result.alternatives[0].transcript.strip())
-            total_confidences += result.alternatives[0].confidence
-        if not transcripts:
-            confidence = 1
-        else:
-            confidence = total_confidences / len(transcripts)
-        return Result(transcript=" ".join(transcripts), confidence=confidence)
+            alternative = result.alternatives[0]
+            transcripts.append(alternative.transcript.strip())
+            conf = alternative.confidence
+            for w in alternative.words:
+                start = w.start_time.total_seconds() * 1000
+                end = w.end_time.total_seconds() * 1000
+                words.append(Word(text=w.word, confidence=conf, start=start, end=end))
 
-    def _upload_to_google_storage(self, bucket_name, audio: Audio):
+        return RecognizeResult(transcript=" ".join(transcripts), words=words)
+
+    def _upload_to_google_storage(self, bucket_name, audio: AudioFile):
         bucket = self.storage_client.bucket(bucket_name)
         blob = bucket.blob("{}{}".format(generate_random_str(20), audio.file_extension))
         blob.upload_from_filename(audio.file)
