@@ -89,7 +89,8 @@ class GoogleClient(AsrClient):
             language_code=config.language,
             model="video",
             use_enhanced=True,
-            enable_word_time_offsets=True
+            enable_word_time_offsets=True,
+            enable_automatic_punctuation=True
         )
 
         if config.diarization:
