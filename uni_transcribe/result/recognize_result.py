@@ -47,7 +47,7 @@ class RecognizeResult:
                     current_para.append(word)
                 else:
                     self._dialogue.append(create_paragraph(current_para))
-                    current_para = []
+                    current_para = [word]
             if current_para:
                 self._dialogue.append(create_paragraph(current_para))
         return self._dialogue

@@ -45,11 +45,19 @@ class AwsClient(AsrClient):
 
         job_name = "job-{}".format(generate_random_str(20))
         job_uri = "s3://{}/{}".format(config.s3_bucket, s3_object_name)
+
+        settings = {}
+        if config.diarization:
+            max_spk_count = config.diarization[1]
+            settings["MaxSpeakerLabels"] = min(max(max_spk_count, 2), 10)
+            settings["ShowSpeakerLabels"] = True
+
         self.transcribe_client.start_transcription_job(
             TranscriptionJobName=job_name,
             Media={'MediaFileUri': job_uri},
             MediaFormat=audio.file_extension_no_dot,
-            LanguageCode=config.language
+            LanguageCode=config.language,
+            Settings=settings
         )
 
         while True:
@@ -58,16 +66,26 @@ class AwsClient(AsrClient):
                 r = requests.get(status['TranscriptionJob']['Transcript']['TranscriptFileUri'])
                 results = r.json()['results']
                 transcript = results['transcripts'][0]['transcript']
+
+                # generate speaker map
+                speaker_map = dict()
+                if ("speaker_labels" in results) and ("segments" in results["speaker_labels"]):
+                    for segment in results["speaker_labels"]["segments"]:
+                        for item in segment["items"]:
+                            speaker_map[(item["start_time"], item["end_time"])] = item["speaker_label"]
+
                 words = []
                 for i in results["items"]:
                     if i["type"] == "pronunciation":
                         alternatives = i["alternatives"]
                         if alternatives:
+                            spk_id = speaker_map.get((i["start_time"], i["end_time"]))
                             word = Word(
                                 text=alternatives[0]["content"],
                                 confidence=alternatives[0]["confidence"],
                                 start=float(i["start_time"]) * 1000,
-                                end=float(i["end_time"]) * 1000
+                                end=float(i["end_time"]) * 1000,
+                                speaker=spk_id
                             )
                             words.append(word)
 

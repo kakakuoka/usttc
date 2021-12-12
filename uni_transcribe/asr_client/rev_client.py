@@ -15,7 +15,7 @@ class RevClient(AsrClient):
     def recognize(self, config: Config, audio: AudioFile):
         job = self.client.submit_job_local_file(
             audio.file,
-            skip_diarization=True
+            skip_diarization=(config.diarization is None)
         )
 
         while True:
@@ -23,20 +23,21 @@ class RevClient(AsrClient):
             job_details = self.client.get_job_details(job.id)
             if job_details.status == JobStatus.TRANSCRIBED:
                 json_result = self.client.get_transcript_json(job.id)
-                # print(json_result)
                 transcript = ""
                 words = []
-                monologue = json_result["monologues"][0]
-                for element in monologue["elements"]:
-                    transcript += element["value"]
-                    if element["type"] == "text":
-                        words.append(
-                            Word(
-                                text=element["value"], confidence=element["confidence"],
-                                start=element["ts"] * 1000,
-                                end=element["end_ts"] * 1000
+                for monologue in json_result["monologues"]:
+                    speaker = monologue["speaker"]
+                    for element in monologue["elements"]:
+                        transcript += element["value"]
+                        if element["type"] == "text":
+                            words.append(
+                                Word(
+                                    text=element["value"], confidence=element["confidence"],
+                                    start=element["ts"] * 1000,
+                                    end=element["end_ts"] * 1000,
+                                    speaker=speaker
+                                )
                             )
-                        )
                 break
             elif job_details.status == JobStatus.FAILED:
                 transcript = ""

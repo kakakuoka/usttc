@@ -3,7 +3,7 @@
 class TextUnit:
     def __init__(self, text, confidence=1, start=None, end=None, duration=None, speaker=None):
         self._text = text
-        self._confidence = confidence
+        self._confidence = float(confidence)
         self._speaker = speaker
         self._start = int(start)
         if (end is None) and (duration is None):
