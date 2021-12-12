@@ -93,7 +93,7 @@ class GoogleClient(AsrClient):
         )
 
         if config.diarization:
-            min_spk_count = max(config.diarization[0], 1)
+            min_spk_count = config.diarization[0]
             max_spk_count = config.diarization[1]
             diarization_config = speech.SpeakerDiarizationConfig(
                 enable_speaker_diarization=True, min_speaker_count=min_spk_count, max_speaker_count=max_spk_count

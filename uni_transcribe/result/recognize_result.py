@@ -1,4 +1,4 @@
-import string
+from uni_transcribe.result.paragraph import Paragraph
 
 
 class RecognizeResult:
@@ -7,6 +7,7 @@ class RecognizeResult:
         if self._transcript is not None:
             self._transcript = self._transcript.strip()
         self._words = words
+        self._dialogue = None
         self.post_process_done = False
 
     @property
@@ -25,6 +26,40 @@ class RecognizeResult:
             return self._words
         return None
 
+    @property
+    def dialogue(self):
+        def create_paragraph(word_list):
+            text = " ".join([w.text for w in word_list])
+            conf = 0
+            for w in word_list:
+                conf += w.confidence
+            conf /= len(word_list)
+            return Paragraph(
+                text=text, confidence=conf,
+                start=word_list[0].start, end=word_list[-1].end, speaker=word_list[0].speaker
+            )
+
+        if self._dialogue is None:
+            self._dialogue = []
+            current_para = []
+            for word in self.words:
+                if (not current_para) or (current_para[-1].speaker == word.speaker):
+                    current_para.append(word)
+                else:
+                    self._dialogue.append(create_paragraph(current_para))
+                    current_para = []
+            if current_para:
+                self._dialogue.append(create_paragraph(current_para))
+        return self._dialogue
+
+    @property
+    def pretty_dialogue(self):
+        dialogue = self.dialogue
+        pretty_text_list = []
+        for paragraph in dialogue:
+            pretty_text_list.append("Speaker-{} : {}".format(paragraph.speaker, paragraph.text))
+        return "\n".join(pretty_text_list)
+
     def _post_process_word(self):
         self._words.sort(key=lambda x: x.start)
         current_spk_id_map = dict()
@@ -33,7 +68,7 @@ class RecognizeResult:
             if speaker in current_spk_id_map:
                 word.speaker = current_spk_id_map.get(speaker)
             else:
-                new_id = string.ascii_uppercase[len(current_spk_id_map)]
+                new_id = len(current_spk_id_map)
                 current_spk_id_map[speaker] = new_id
                 word.speaker = new_id
 

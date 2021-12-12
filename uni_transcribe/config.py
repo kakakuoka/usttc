@@ -22,7 +22,7 @@ class Config:
         if diarization:
             if (len(diarization) != 2) or \
                     (not isinstance(diarization[0], int)) or (not isinstance(diarization[1], int)) or \
-                    (diarization[0] > diarization[1]):
+                    (diarization[0] > diarization[1]) or (diarization[0] < 1):
                 raise ConfigurationException("Diarization config is invalid")
             if diarization[1] > 1:
                 self.diarization = diarization

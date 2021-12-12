@@ -64,6 +64,20 @@ class VoicegainClient(AsrClient):
             }
         }
 
+        if config.diarization:
+            min_spk_count = config.diarization[0]
+            max_spk_count = config.diarization[1]
+            async_transcription_request["settings"] = {
+                "asr": {
+                    "diarization": {
+                        "minSpeakers": min(max(1, min_spk_count), 10),
+                        "maxSpeakers": min(max(1, max_spk_count), 10)
+                    }
+                }
+            }
+
+        # print(async_transcription_request)
+
         async_transcribe_init_response = self.transcribe_api.asr_transcribe_async_post(
             async_transcription_request=async_transcription_request
         )
@@ -81,6 +95,7 @@ class VoicegainClient(AsrClient):
 
             if poll_response_result.final:
                 # get to final
+                # print(poll_response_result)
                 result_transcript = poll_response_result.transcript
                 words = []
                 if poll_response_result.words:
