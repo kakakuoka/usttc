@@ -83,7 +83,7 @@ class GoogleClient(AsrClient):
         return StreamResults(parse_response())
 
     def _async_recognize(self, config: Config, audio: AudioFile, recog_audio):
-        config = speech.RecognitionConfig(
+        recognition_config = speech.RecognitionConfig(
             encoding=audio.codec.name,
             sample_rate_hertz=audio.sample_rate,
             language_code=config.language,
@@ -92,7 +92,15 @@ class GoogleClient(AsrClient):
             enable_word_time_offsets=True
         )
 
-        operation = self.client.long_running_recognize(config=config, audio=recog_audio)
+        if config.diarization:
+            min_spk_count = max(config.diarization[0], 1)
+            max_spk_count = config.diarization[1]
+            diarization_config = speech.SpeakerDiarizationConfig(
+                enable_speaker_diarization=True, min_speaker_count=min_spk_count, max_speaker_count=max_spk_count
+            )
+            recognition_config.diarization_config = diarization_config
+
+        operation = self.client.long_running_recognize(config=recognition_config, audio=recog_audio)
         response = operation.result()
 
         transcripts = []
@@ -100,11 +108,11 @@ class GoogleClient(AsrClient):
         for result in response.results:
             alternative = result.alternatives[0]
             transcripts.append(alternative.transcript.strip())
-            conf = alternative.confidence
-            for w in alternative.words:
-                start = w.start_time.total_seconds() * 1000
-                end = w.end_time.total_seconds() * 1000
-                words.append(Word(text=w.word, confidence=conf, start=start, end=end))
+        last_result = response.results[-1]
+        for w in last_result.alternatives[0].words:
+            start = w.start_time.total_seconds() * 1000
+            end = w.end_time.total_seconds() * 1000
+            words.append(Word(text=w.word, start=start, end=end, speaker=w.speaker_tag))
 
         return RecognizeResult(transcript=" ".join(transcripts), words=words)
 

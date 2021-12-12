@@ -47,4 +47,8 @@ class Word:
     def speaker(self):
         if self._speaker is not None:
             return self._speaker
-        return "UNK"
+        return 0
+
+    @speaker.setter
+    def speaker(self, s):
+        self._speaker = s
