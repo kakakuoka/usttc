@@ -23,9 +23,10 @@ class GoogleClient(AsrClient):
             raise AudioException("Google does not support audio longer than 480 minutes")
 
         convert_audio = False
-        if audio.codec not in {
-            AudioFormat.LINEAR16, AudioFormat.FLAC, AudioFormat.MULAW, AudioFormat.AMR
-        }:
+        if (audio.codec not in {AudioFormat.LINEAR16, AudioFormat.FLAC, AudioFormat.MULAW, AudioFormat.AMR}) or \
+            ((audio.codec not in {AudioFormat.LINEAR16, AudioFormat.FLAC})
+                and (audio.channels > 1)
+                and config.separate_speaker_per_channel):
             audio = audio.convert()
             convert_audio = True
 
@@ -101,21 +102,31 @@ class GoogleClient(AsrClient):
             )
             recognition_config.diarization_config = diarization_config
 
+        if config.separate_speaker_per_channel and audio.channels > 1:
+            recognition_config.enable_separate_recognition_per_channel = True
+            recognition_config.audio_channel_count = audio.channels
+
         operation = self.client.long_running_recognize(config=recognition_config, audio=recog_audio)
         response = operation.result()
 
-        transcripts = []
         words = []
-        for result in response.results:
-            alternative = result.alternatives[0]
-            transcripts.append(alternative.transcript.strip())
-        last_result = response.results[-1]
-        for w in last_result.alternatives[0].words:
-            start = w.start_time.total_seconds() * 1000
-            end = w.end_time.total_seconds() * 1000
-            words.append(Word(text=w.word, start=start, end=end, speaker=w.speaker_tag))
+        channel_tags = set()
+        for i in range(len(response.results)):
+            current_result = response.results[-i-1]
+            current_channel_tag = current_result.channel_tag
+            if current_channel_tag in channel_tags:
+                break
+            channel_tags.add(current_channel_tag)
+            for w in current_result.alternatives[0].words:
+                start = w.start_time.total_seconds() * 1000
+                end = w.end_time.total_seconds() * 1000
+                if current_channel_tag:
+                    speaker = current_channel_tag
+                else:
+                    speaker = w.speaker_tag
+                words.append(Word(text=w.word, start=start, end=end, speaker=speaker))
 
-        return RecognizeResult(transcript=" ".join(transcripts), words=words)
+        return RecognizeResult(transcript=None, words=words)
 
     def _upload_to_google_storage(self, bucket_name, audio: AudioFile):
         bucket = self.storage_client.bucket(bucket_name)

@@ -21,10 +21,14 @@ class AudioFile:
                     break
             if audio_stream:
                 self._channels = int(audio_stream["channels"])
+                if self._channels > 2:
+                    AudioException("Only support mono or stereo audio")
                 self._sample_rate = int(audio_stream["sample_rate"])
                 self._codec = self._get_audio_format(audio_stream["codec_name"], self.file_extension_no_dot)
                 if self._codec:
                     self._valid = True
+        except AudioException as e:
+            raise e
         except:
             pass
         if not self._valid:

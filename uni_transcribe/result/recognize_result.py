@@ -15,7 +15,8 @@ class RecognizeResult:
         if self._transcript:
             return self._transcript
         if self.words:
-            return " ".join([i.text for i in self.words])
+            self._transcript = " ".join([i.text for i in self.words])
+            return self._transcript
         return ""
 
     @property
