@@ -13,9 +13,13 @@ class RevClient(AsrClient):
         self.client = client
 
     def recognize(self, config: Config, audio: AudioFile):
+        speaker_channels_count = None
+        if config.separate_speaker_per_channel and audio.channels > 1:
+            speaker_channels_count = audio.channels
         job = self.client.submit_job_local_file(
             audio.file,
-            skip_diarization=(config.diarization is None)
+            skip_diarization=(config.diarization is None),
+            speaker_channels_count=speaker_channels_count
         )
 
         while True:
@@ -23,12 +27,12 @@ class RevClient(AsrClient):
             job_details = self.client.get_job_details(job.id)
             if job_details.status == JobStatus.TRANSCRIBED:
                 json_result = self.client.get_transcript_json(job.id)
-                transcript = ""
+                # transcript = ""
                 words = []
                 for monologue in json_result["monologues"]:
                     speaker = monologue["speaker"]
                     for element in monologue["elements"]:
-                        transcript += element["value"]
+                        # transcript += element["value"]
                         if element["type"] == "text":
                             words.append(
                                 Word(
@@ -40,12 +44,12 @@ class RevClient(AsrClient):
                             )
                 break
             elif job_details.status == JobStatus.FAILED:
-                transcript = ""
+                # transcript = ""
                 words = None
                 break
 
         self.client.delete_job(job.id)
-        return RecognizeResult(transcript=transcript, words=words)
+        return RecognizeResult(words=words)
 
     def stream(self):
         pass
