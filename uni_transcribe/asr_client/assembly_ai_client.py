@@ -27,9 +27,11 @@ class AssemblyAiClient(AsrClient):
                                  data=read_file(audio.file))
         audio_url = response.json()["upload_url"]
         endpoint = "https://api.assemblyai.com/v2/transcript"
+        dual_channel = config.separate_speaker_per_channel and (audio.channels == 2)
         json = {
             "audio_url": audio_url,
-            "speaker_labels": (config.diarization is not None)
+            "speaker_labels": (config.diarization is not None),
+            "dual_channel": dual_channel
         }
 
         response = requests.post(endpoint, json=json, headers=headers)
@@ -43,9 +45,13 @@ class AssemblyAiClient(AsrClient):
                 transcript = r["text"]
                 words = []
                 for w in r["words"]:
+                    if dual_channel:
+                        speaker = w.get("channel")
+                    else:
+                        speaker = w.get("speaker")
                     words.append(
                         Word(text=w["text"], confidence=w["confidence"], start=w["start"], end=w["end"],
-                             speaker=w.get("speaker"))
+                             speaker=speaker)
                     )
                 return RecognizeResult(transcript=transcript, words=words)
 
