@@ -76,41 +76,53 @@ class VoicegainClient(AsrClient):
                 }
             }
 
-        # print(async_transcription_request)
-
-        async_transcribe_init_response = self.transcribe_api.asr_transcribe_async_post(
-            async_transcription_request=async_transcription_request
-        )
-
-        async_response_session = async_transcribe_init_response.sessions[0]
-        session_id = async_response_session.session_id
-
-        while True:
-            time.sleep(5)
-            poll_response = self.transcribe_api.asr_transcribe_async_get(
-                session_id=session_id,
-                full=True
+        def _get_result_resp(request):
+            async_transcribe_init_response = self.transcribe_api.asr_transcribe_async_post(
+                async_transcription_request=request
             )
-            poll_response_result = poll_response.result
 
-            if poll_response_result.final:
-                # get to final
-                # print(poll_response_result)
-                result_transcript = poll_response_result.transcript
-                words = []
-                if poll_response_result.words:
-                    for word in poll_response_result.words:
-                        words.append(Word(
-                            text=word.utterance,
-                            confidence=word.confidence,
-                            start=word.start,
-                            duration=word.duration,
-                            speaker=word.spk
-                        ))
-                result = RecognizeResult(transcript=result_transcript, words=words)
-                return result
-            else:
-                pass
+            async_response_session = async_transcribe_init_response.sessions[0]
+            session_id = async_response_session.session_id
+
+            while True:
+                time.sleep(5)
+                poll_response = self.transcribe_api.asr_transcribe_async_get(
+                    session_id=session_id,
+                    full=True
+                )
+                poll_response_result = poll_response.result
+
+                if poll_response_result.final:
+                    return poll_response_result
+                else:
+                    pass
+
+        if config.separate_speaker_per_channel and audio.channels == 2:
+            async_transcription_request["sessions"][0]["audioChannelSelector"] = "left"
+            result_resp_left = _get_result_resp(async_transcription_request)
+            async_transcription_request["sessions"][0]["audioChannelSelector"] = "right"
+            result_resp_right = _get_result_resp(async_transcription_request)
+            result_responds = [result_resp_left, result_resp_right]
+        else:
+            result_responds = [_get_result_resp(async_transcription_request)]
+
+        words = []
+        for (M, result_resp) in enumerate(result_responds):
+            if result_resp.words:
+                for word in result_resp.words:
+                    if len(result_responds) == 1:
+                        spk = word.spk
+                    else:
+                        spk = M
+                    words.append(Word(
+                        text=word.utterance,
+                        confidence=word.confidence,
+                        start=word.start,
+                        duration=word.duration,
+                        speaker=spk
+                    ))
+        result = RecognizeResult(words=words)
+        return result
 
     def _start_async_web_socket_stream(self):
         async_transcription_request = {

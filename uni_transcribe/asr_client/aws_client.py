@@ -51,6 +51,8 @@ class AwsClient(AsrClient):
             max_spk_count = config.diarization[1]
             settings["MaxSpeakerLabels"] = min(max(max_spk_count, 2), 10)
             settings["ShowSpeakerLabels"] = True
+        if config.separate_speaker_per_channel and audio.channels > 1:
+            settings["ChannelIdentification"] = True
 
         self.transcribe_client.start_transcription_job(
             TranscriptionJobName=job_name,
@@ -60,46 +62,54 @@ class AwsClient(AsrClient):
             Settings=settings
         )
 
+        def _process_items(items, spk_id=None, _speaker_map=None):
+            words = []
+            for i in items:
+                if i["type"] == "pronunciation":
+                    alternatives = i["alternatives"]
+                    if alternatives:
+                        speaker_id = spk_id
+                        if (speaker_id is None) and (_speaker_map is not None):
+                            speaker_id = _speaker_map.get((i["start_time"], i["end_time"]))
+                        word = Word(
+                            text=alternatives[0]["content"],
+                            confidence=alternatives[0]["confidence"],
+                            start=float(i["start_time"]) * 1000,
+                            end=float(i["end_time"]) * 1000,
+                            speaker=speaker_id
+                        )
+                        words.append(word)
+            return words
+
         while True:
             status = self.transcribe_client.get_transcription_job(TranscriptionJobName=job_name)
             if status['TranscriptionJob']['TranscriptionJobStatus'] == 'COMPLETED':
                 r = requests.get(status['TranscriptionJob']['Transcript']['TranscriptFileUri'])
                 results = r.json()['results']
-                transcript = results['transcripts'][0]['transcript']
-
-                # generate speaker map
-                speaker_map = dict()
-                if ("speaker_labels" in results) and ("segments" in results["speaker_labels"]):
-                    for segment in results["speaker_labels"]["segments"]:
-                        for item in segment["items"]:
-                            speaker_map[(item["start_time"], item["end_time"])] = item["speaker_label"]
-
-                words = []
-                for i in results["items"]:
-                    if i["type"] == "pronunciation":
-                        alternatives = i["alternatives"]
-                        if alternatives:
-                            spk_id = speaker_map.get((i["start_time"], i["end_time"]))
-                            word = Word(
-                                text=alternatives[0]["content"],
-                                confidence=alternatives[0]["confidence"],
-                                start=float(i["start_time"]) * 1000,
-                                end=float(i["end_time"]) * 1000,
-                                speaker=spk_id
-                            )
-                            words.append(word)
-
+                word_list = []
+                # multi-channel
+                if ("channel_labels" in results) and ("channels" in results["channel_labels"]):
+                    for channel in results["channel_labels"]["channels"]:
+                        speaker = channel["channel_label"]
+                        word_list += _process_items(channel["items"], spk_id=speaker)
+                else:
+                    # generate speaker map
+                    speaker_map = dict()
+                    if ("speaker_labels" in results) and ("segments" in results["speaker_labels"]):
+                        for segment in results["speaker_labels"]["segments"]:
+                            for item in segment["items"]:
+                                speaker_map[(item["start_time"], item["end_time"])] = item["speaker_label"]
+                    word_list += _process_items(results["items"], _speaker_map=speaker_map)
                 break
             elif status['TranscriptionJob']['TranscriptionJobStatus'] == 'FAILED':
-                transcript = ""
-                words = None
+                word_list = None
                 break
             time.sleep(5)
         self.transcribe_client.delete_transcription_job(TranscriptionJobName=job_name)
         self.s3_client.delete_object(Bucket=config.s3_bucket, Key=s3_object_name)
         if convert_audio:
             audio.delete()
-        return RecognizeResult(transcript=transcript, words=words)
+        return RecognizeResult(words=word_list)
 
     def stream(self):
         pass
