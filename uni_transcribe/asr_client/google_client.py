@@ -108,15 +108,9 @@ class GoogleClient(AsrClient):
 
         operation = self.client.long_running_recognize(config=recognition_config, audio=recog_audio)
         response = operation.result()
-
         words = []
-        channel_tags = set()
-        for i in range(len(response.results)):
-            current_result = response.results[-i-1]
+        for current_result in response.results:
             current_channel_tag = current_result.channel_tag
-            if current_channel_tag in channel_tags:
-                break
-            channel_tags.add(current_channel_tag)
             for w in current_result.alternatives[0].words:
                 start = w.start_time.total_seconds() * 1000
                 end = w.end_time.total_seconds() * 1000
