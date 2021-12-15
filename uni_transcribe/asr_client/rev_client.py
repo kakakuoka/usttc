@@ -42,6 +42,10 @@ class RevClient(AsrClient):
                                     speaker=speaker
                                 )
                             )
+                        elif (element["type"] == "punct") and words:
+                            value_strip = element["value"].strip()
+                            if value_strip:
+                                words[-1].append_text(value_strip)
                 break
             elif job_details.status == JobStatus.FAILED:
                 # transcript = ""

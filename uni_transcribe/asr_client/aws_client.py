@@ -79,6 +79,11 @@ class AwsClient(AsrClient):
                             speaker=speaker_id
                         )
                         words.append(word)
+                elif (i["type"] == "punctuation") and words:
+                    alternatives = i["alternatives"]
+                    if alternatives:
+                        content = alternatives[0]["content"]
+                        words[-1].append_text(content)
             return words
 
         while True:

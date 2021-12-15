@@ -5,6 +5,7 @@ voicegain-speech==1.45.3
 boto3==1.20.11
 azure-cognitiveservices-speech==1.19.0
 rev-ai==2.13.0
+deepgram-sdk==0.2.1
 requests==2.26.0
 PyAudio==0.2.11
 websockets==10.1

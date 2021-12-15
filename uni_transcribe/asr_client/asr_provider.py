@@ -8,5 +8,4 @@ class AsrProvider(Enum):
     VOICEGAIN = 4
     REV = 5
     DEEPGRAM = 6
-    IBM_WATSON = 7
-    ASSEMBLY_AI = 8
+    ASSEMBLY_AI = 7

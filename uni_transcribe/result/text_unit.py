@@ -20,6 +20,9 @@ class TextUnit:
             if self._start + self._duration != self._end:
                 raise ValueError("start + duration != end")
 
+    def append_text(self, new_text):
+        self._text += new_text
+
     @property
     def text(self):
         return self._text

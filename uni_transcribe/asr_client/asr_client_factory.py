@@ -6,7 +6,6 @@ from uni_transcribe.asr_client.assembly_ai_client import AssemblyAiClient
 from uni_transcribe.asr_client.azure_client import AzureClient
 from uni_transcribe.asr_client.rev_client import RevClient
 from uni_transcribe.asr_client.deepgram_client import DeepgramClient
-from uni_transcribe.asr_client.watson_client import WatsonClient
 
 
 class AsrClientFactory:
@@ -29,7 +28,6 @@ class AsrClientFactory:
             AsrProvider.DEEPGRAM: DeepgramClient,
             AsrProvider.ASSEMBLY_AI: AssemblyAiClient,
             AsrProvider.MICROSOFT_AZURE: AzureClient,
-            AsrProvider.IBM_WATSON: WatsonClient,
         }
         return provider_map.get(asr_provider)
 

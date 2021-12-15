@@ -6,6 +6,7 @@ from uni_transcribe.result.word import Word
 from uni_transcribe.exceptions.exceptions import ConfigurationException, AudioException
 import azure.cognitiveservices.speech as speechsdk
 import json
+import logging
 
 
 class AzureClient(AsrClient):
@@ -14,6 +15,13 @@ class AzureClient(AsrClient):
         self.region = region
 
     def recognize(self, config: Config, audio: AudioFile):
+
+        if config.diarization:
+            raise ConfigurationException("Azure python SDK does not support diarization. "
+                                         "Will switch to batch transcription API later on")
+        if config.separate_speaker_per_channel and audio.channels > 1:
+            raise ConfigurationException("Azure python SDK does not support multi-channel audio. "
+                                         "Will switch to batch transcription API later on")
 
         speech_config = speechsdk.SpeechConfig(subscription=self.key,
                                                region=self.region)
@@ -56,6 +64,7 @@ class AzureClient(AsrClient):
 
     @staticmethod
     def from_key(key: str, *args, **kwargs):
+        logging.info("Azure integration is Alpha version")
         region = kwargs.get("region")
         if not region:
             raise ConfigurationException("Azure ASR: Specify region arg")
