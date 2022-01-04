@@ -1,18 +1,8 @@
-from abc import ABC, abstractmethod
-from uni_transcribe.config import Config
-from uni_transcribe.audio.audio_file import AudioFile
-from uni_transcribe.stream.stream import Stream
+from uni_transcribe.asr_client.asr_client_interface import AsrClientInterface
+from abc import abstractmethod
 
 
-class AsrClient(ABC):
-
-    @abstractmethod
-    def recognize(self, config: Config, audio: AudioFile):
-        pass
-
-    @abstractmethod
-    def stream(self, stream: Stream, config: Config):
-        pass
+class AsrClient(AsrClientInterface):
 
     @staticmethod
     @abstractmethod

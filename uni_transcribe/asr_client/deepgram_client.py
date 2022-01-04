@@ -4,11 +4,14 @@ from uni_transcribe.audio.audio_file import AudioFile
 from uni_transcribe.result.recognize_result import RecognizeResult
 from uni_transcribe.result.word import Word
 from uni_transcribe.exceptions.exceptions import ConfigurationException, AudioException
+from uni_transcribe.asr_client.asr_provider import AsrProvider
 from deepgram import Deepgram
 import asyncio
 
 
 class DeepgramClient(AsrClient):
+    provider = AsrProvider.DEEPGRAM
+
     def __init__(self, client):
         self.client = client
 

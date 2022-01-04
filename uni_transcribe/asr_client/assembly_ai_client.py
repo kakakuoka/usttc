@@ -3,11 +3,14 @@ from uni_transcribe.config import Config
 from uni_transcribe.audio.audio_file import AudioFile
 from uni_transcribe.result.recognize_result import RecognizeResult
 from uni_transcribe.result.word import Word
+from uni_transcribe.asr_client.asr_provider import AsrProvider
 import requests
 import time
 
 
 class AssemblyAiClient(AsrClient):
+    provider = AsrProvider.ASSEMBLY_AI
+
     def __init__(self, token):
         self.token = token
 

@@ -27,7 +27,7 @@ class AsrClientFactory:
             AsrProvider.REV: RevClient,
             AsrProvider.DEEPGRAM: DeepgramClient,
             AsrProvider.ASSEMBLY_AI: AssemblyAiClient,
-            AsrProvider.MICROSOFT_AZURE: AzureClient,
+            # AsrProvider.MICROSOFT_AZURE: AzureClient,
         }
         return provider_map.get(asr_provider)
 

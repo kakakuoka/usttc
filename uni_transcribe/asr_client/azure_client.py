@@ -4,12 +4,15 @@ from uni_transcribe.audio.audio_file import AudioFile, AudioFormat
 from uni_transcribe.result.recognize_result import RecognizeResult
 from uni_transcribe.result.word import Word
 from uni_transcribe.exceptions.exceptions import ConfigurationException, AudioException
+from uni_transcribe.asr_client.asr_provider import AsrProvider
 import azure.cognitiveservices.speech as speechsdk
 import json
 import logging
 
 
 class AzureClient(AsrClient):
+    provider = AsrProvider.MICROSOFT_AZURE
+
     def __init__(self, key, region):
         self.key = key
         self.region = region

@@ -5,6 +5,7 @@ from uni_transcribe.result.recognize_result import RecognizeResult
 from uni_transcribe.result.word import Word
 from uni_transcribe.exceptions.exceptions import AudioException
 from uni_transcribe.stream.stream import Stream
+from uni_transcribe.asr_client.asr_provider import AsrProvider
 from voicegain_speech import ApiClient
 from voicegain_speech import Configuration
 from voicegain_speech import TranscribeApi, DataApi
@@ -18,6 +19,8 @@ OFFLINE_FILE_SIZE_LIMIT = 150 * 1024 * 1024
 
 
 class VoicegainClient(AsrClient):
+    provider = AsrProvider.VOICEGAIN
+
     def __init__(self, api_client):
         self.api_client = api_client
         self.transcribe_api = TranscribeApi(api_client)

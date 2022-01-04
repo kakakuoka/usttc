@@ -4,6 +4,7 @@ from uni_transcribe.audio.audio_file import AudioFile, AudioFormat
 from uni_transcribe.result.recognize_result import RecognizeResult
 from uni_transcribe.result.word import Word
 from uni_transcribe.exceptions.exceptions import ConfigurationException, AudioException
+from uni_transcribe.asr_client.asr_provider import AsrProvider
 import time
 import boto3
 import requests
@@ -15,6 +16,8 @@ FILE_SIZE_LIMIT = 2 * 1024 * 1024 * 1024
 
 
 class AwsClient(AsrClient):
+    provider = AsrProvider.AMAZON_AWS
+
     def __init__(self, s3_client, transcribe_client):
         self.s3_client = s3_client
         self.transcribe_client = transcribe_client

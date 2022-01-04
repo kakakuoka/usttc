@@ -9,11 +9,14 @@ from uni_transcribe.stream.stream_results import StreamResult, StreamResults
 from uni_transcribe.stream.stream import Stream
 from google.cloud import speech
 from google.cloud import storage
+from uni_transcribe.asr_client.asr_provider import AsrProvider
 
 AUDIO_DURATION_LIMIT = 480 * 60
 
 
 class GoogleClient(AsrClient):
+    provider = AsrProvider.GOOGLE
+
     def __init__(self, client, storage_client):
         self.client = client
         self.storage_client = storage_client
