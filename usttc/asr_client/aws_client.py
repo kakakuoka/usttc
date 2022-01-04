@@ -1,14 +1,14 @@
-from uni_transcribe.asr_client.asr_client import AsrClient
-from uni_transcribe.config import Config
-from uni_transcribe.audio.audio_file import AudioFile, AudioFormat
-from uni_transcribe.result.recognize_result import RecognizeResult
-from uni_transcribe.result.word import Word
-from uni_transcribe.exceptions.exceptions import ConfigurationException, AudioException
-from uni_transcribe.asr_client.asr_provider import AsrProvider
+from usttc.asr_client.asr_client import AsrClient
+from usttc.config import Config
+from usttc.audio.audio_file import AudioFile, AudioFormat
+from usttc.result.recognize_result import RecognizeResult
+from usttc.result.word import Word
+from usttc.exceptions.exceptions import ConfigurationException, AudioException
+from usttc.asr_client.asr_provider import AsrProvider
 import time
 import boto3
 import requests
-from uni_transcribe.utils import generate_random_str
+from usttc.utils import generate_random_str
 
 
 AUDIO_DURATION_LIMIT = 4 * 60 * 60

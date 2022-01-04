@@ -1,4 +1,4 @@
-from uni_transcribe.result.text_unit import TextUnit
+from usttc.result.text_unit import TextUnit
 
 
 class Word(TextUnit):

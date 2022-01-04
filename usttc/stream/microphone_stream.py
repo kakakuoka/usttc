@@ -1,6 +1,6 @@
 import pyaudio
 from six.moves import queue
-from uni_transcribe.stream.stream import Stream
+from usttc.stream.stream import Stream
 import time
 
 

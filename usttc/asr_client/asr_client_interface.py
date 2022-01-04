@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
-from uni_transcribe.config import Config
-from uni_transcribe.audio.audio_file import AudioFile
-from uni_transcribe.stream.stream import Stream
+from usttc.config import Config
+from usttc.audio.audio_file import AudioFile
+from usttc.stream.stream import Stream
 
 
 class AsrClientInterface(ABC):

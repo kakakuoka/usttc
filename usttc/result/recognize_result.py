@@ -1,4 +1,4 @@
-from uni_transcribe.result.paragraph import Paragraph
+from usttc.result.paragraph import Paragraph
 
 
 class RecognizeResult:

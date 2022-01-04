@@ -1,5 +1,6 @@
-# uni-transcribe
+# usttc (Unified Speech-to-text Client)
 
+### Goal
 [This project is in progress]
 
 The accuracy of Speech-to-text (STT) improved significantly during the past few years. There are a lot of cloud STT providers on the market, including some big players like Google, AWS and Microsoft Azure, and a few ambitious new providers like Voicegain and Deepgram. 
@@ -13,3 +14,5 @@ The intent of this open-sourced project is to provide a simple and generic wrapp
 
 In terms of my personal background, I am the Senior AI Scientist in Voicegain (specializing in Speech Recognition), but I wrote this personal project without any bias. As mentioned, the goal of this project is to enable more people in the community to explore STT without too much trouble of dealing with varied providers, APIs and documentations. 
 
+### Examples
+Coming soon

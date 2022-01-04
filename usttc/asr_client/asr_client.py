@@ -1,4 +1,4 @@
-from uni_transcribe.asr_client.asr_client_interface import AsrClientInterface
+from usttc.asr_client.asr_client_interface import AsrClientInterface
 from abc import abstractmethod
 
 

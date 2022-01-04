@@ -1,4 +1,4 @@
-from uni_transcribe.exceptions.exceptions import ConfigurationException
+from usttc.exceptions.exceptions import ConfigurationException
 
 
 class Config:

@@ -2,8 +2,8 @@ import ffmpeg
 from enum import Enum
 import base64
 import os
-from uni_transcribe.utils import generate_random_str
-from uni_transcribe.exceptions.exceptions import AudioException
+from usttc.utils import generate_random_str
+from usttc.exceptions.exceptions import AudioException
 
 
 class AudioFile:
