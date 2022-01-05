@@ -19,3 +19,24 @@ class Word(TextUnit):
     @speaker.setter
     def speaker(self, s):
         self._speaker = s
+
+    def to_json(self):
+        return {
+            "text": self.text,
+            "start": self.start,
+            "end": self.end,
+            "duration": self.duration,
+            "confidence": self.confidence,
+            "speaker": self.speaker
+        }
+
+    @staticmethod
+    def from_json(json_dict):
+        return Word(
+            text=json_dict.get("text"),
+            confidence=json_dict.get("confidence"),
+            start=json_dict.get("start"),
+            end=json_dict.get("end"),
+            duration=json_dict.get("duration"),
+            speaker=json_dict.get("speaker")
+        )

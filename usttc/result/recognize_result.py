@@ -1,4 +1,5 @@
 from usttc.result.paragraph import Paragraph
+from usttc.result.word import Word
 
 
 class RecognizeResult:
@@ -60,6 +61,21 @@ class RecognizeResult:
         for paragraph in dialogue:
             pretty_text_list.append("Speaker-{} : {}".format(paragraph.speaker, paragraph.text))
         return "\n".join(pretty_text_list)
+
+    def to_json(self):
+        if self.words:
+            json_list = []
+            for word in self.words:
+                json_list.append(word.to_json())
+            return json_list
+        return []
+
+    @staticmethod
+    def from_json(json_dict):
+        words = []
+        for i in json_dict:
+            words.append(Word.from_json(i))
+        return RecognizeResult(words=words)
 
     def _post_process_word(self):
         self._words.sort(key=lambda x: x.start)
