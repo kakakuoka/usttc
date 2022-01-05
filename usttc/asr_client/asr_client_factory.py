@@ -3,7 +3,7 @@ from usttc.asr_client.google_client import GoogleClient
 from usttc.asr_client.voicegain_client import VoicegainClient
 from usttc.asr_client.aws_client import AwsClient
 from usttc.asr_client.assembly_ai_client import AssemblyAiClient
-from usttc.asr_client.azure_client import AzureClient
+# from usttc.asr_client.azure_client import AzureClient
 from usttc.asr_client.rev_client import RevClient
 from usttc.asr_client.deepgram_client import DeepgramClient
 
