@@ -34,18 +34,19 @@ Fortunately, USTTC makes it very easy to test multiple providers using (almost) 
 
 The following table shows the price of each provider, so that you can also choose based on your budget.
 
-Provider Price Details[^1] | $ per minute | Free Tier per month | Free Credits | Minimum per request charge[^4] | Increments
+Provider Price Details<sup>[1]</sup> | $ per minute | Free Tier per month | Free Credits | Minimum per request charge<sup>[4]</sup> | Increments
 ---------------------- | -------------| ------------------- | ------------ | -------------------------- | ----------
-[Google Speech-to-Text](https://cloud.google.com/speech-to-text/pricing) | $0.0360 | 60 minutes | 8,333 minutes ($300)[^2] | 15 seconds | 15 seconds
-[AWS Transcribe](https://aws.amazon.com/transcribe/pricing/) | $0.0240 | 60 minutes[^3] | No | 15 seconds | 1 second
+[Google Speech-to-Text](https://cloud.google.com/speech-to-text/pricing) | $0.0360 | 60 minutes | 8,333 minutes ($300)<sup>[2]</sup> | 15 seconds | 15 seconds
+[AWS Transcribe](https://aws.amazon.com/transcribe/pricing/) | $0.0240 | 60 minutes<sup>[3]</sup> | No | 15 seconds | 1 second
 [Voicegain.ai](https://www.voicegain.ai/pricing) | $0.0095 | No | 5,263 minutes ($50) | 1 second | 1 second
 [Rev.ai](https://www.rev.ai/pricing) | $0.0350 | No | 300 minutes | 15 seconds | 15 seconds
 [Assembly.ai](https://www.assemblyai.com/pricing) | $0.0150 | 180 minutes | No | 1 second | 1 second
 [Deepgram](https://deepgram.com/pricing/) | $0.0125 | No | 12,000 minutes ($150) | *Not clear* | *Not clear*
-[^1]: Price might change. Please check the pricing page for each provider
-[^2]: Google Cloud Free credits is shared among all cloud services, and is only for the first 3 months
-[^3]: AWS Free Tier is only for the first 12 months
-[^4]: You need to consider this if the average audio duration is shorter than 15s in your application
+
+*[1]: Price might change. Please check the pricing page for each provider*</br>
+*[2]: Google Cloud Free credits is shared among all cloud services, and is only for the first 3 months*</br>
+*[3]: AWS Free Tier is only for the first 12 months*</br>
+*[4]: You need to consider this if the average audio duration is shorter than 15s in your application*
 
 Once you decide which providers to test, you can create account on them following the instructions below.
 
