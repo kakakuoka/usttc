@@ -120,6 +120,8 @@ class GoogleClient(AsrClient):
                     speaker = current_channel_tag
                 else:
                     speaker = w.speaker_tag
+                if config.diarization and not speaker:
+                    continue
                 words.append(Word(text=w.word, start=start, end=end, speaker=speaker))
 
         return RecognizeResult(transcript=None, words=words)

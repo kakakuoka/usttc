@@ -159,15 +159,21 @@ audio = AudioFile(file_path="<YOUR_AUDIO_FILE_PATH>")
 result = asr_client.recognize(audio)
 print(result.transcript)
 ```
-#### Diarization
-*Coming soon*
-#### Multi-Channel Audio
-*Coming soon*
+You can find an end-to-end example [here](examples/transcribe_audio_file_basic.py)
 
-### Ensemble
-*This feature will be available soon*
+#### Multiple Speakers
+An audio file can contain multiple speakers in two ways.
+* multi-channel audio. Each channel has one speaker. (We only support stereo audio). In this case, you need to configure **separate_speaker_per_channel** ([example](examples/transcribe_audio_file_multi_channel.py))
+* mono audio. All speakers are mixed into the same channel. In this case, you need to configure **diarization** ([example](examples/transcribe_audio_file_diarization.py))
+
+Notes:
+1. If your audio is stereo, but both channels have the same audio, you should **NOT** configure **separate_speaker_per_channel**
+2. **DO NOT** use diarization if speakers are already separated by channel.
 
 ### Compare transcription result
+*This feature will be available soon*
+
+### Ensemble
 *This feature will be available soon*
 
 ### Transcribe Audio Stream
