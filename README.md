@@ -1,7 +1,25 @@
 # USTTC (Unified Speech-to-Text Client)
 
-This project provides a simple and unified client wrapper for different Speech-to-test providers on the basic use cases, 
+This project provides a simple and unified client wrapper for multiple [Speech-to-test (STT)](https://en.wikipedia.org/wiki/Speech_recognition) providers on the basic use cases, 
 and gives users an easy way to switch and test among different providers.
+
+## Background
+The accuracy of Speech-to-text (STT) improved significantly during the past few years. 
+There are a lot of cloud STT providers on the market, 
+including some big players like Google and AWS, 
+and a few ambitious new providers like Voicegain.ai and Assembly.ai. 
+
+As a Speech Recognition Scientist, I have reviewed many providers in the last few years, 
+and I have noticed that each provider has its unique features. 
+However, most users do not necessarily need those additional features, 
+especially in the early testing stage. 
+Their requirements are very simple and basic -- getting accurate transcript of the provided audio.
+
+In terms of my personal background, I am the Senior AI Scientist in Voicegain (specializing in Speech Recognition), 
+but USTTC is a personal project, and I try to do it without any bias. 
+As mentioned, the goal of this project is to enable more people in the community to explore and test STT 
+without too much trouble of dealing with varied providers, APIs and documentations. 
+
 
 ## Installation
 
@@ -49,13 +67,14 @@ Provider Price Details<sup>[1]</sup> | $ per minute<sup>[2]</sup> | Free Tier pe
 *[5]: AWS Free Tier is only for the first 12 months*
 
 ## Create account on selected STT providers
-Once you decide which providers to test, you can create account on them following the instructions below.
+Once you decide which providers to test, you can create account on them following the steps below.
 
 ### Google STT
 1. Sign up Google Cloud Platform. https://console.cloud.google.com/getting-started
-2. Create a storage bucket. You can use the default setting. https://cloud.google.com/storage/docs/creating-buckets
-3. Create a service account. Add **Cloud Speech Client** and **Storage Object Admin** two roles. https://cloud.google.com/iam/docs/creating-managing-service-accounts#iam-service-accounts-create-console
-4. Create new **JSON key** for the service account you created. https://cloud.google.com/iam/docs/creating-managing-service-account-keys
+2. Enable **Google Cloud Speech API**. https://cloud.google.com/endpoints/docs/openapi/enable-api
+3. Create a storage bucket. You can use the default setting. https://cloud.google.com/storage/docs/creating-buckets
+4. Create a service account. Add **Cloud Speech Client** and **Storage Object Admin** two roles. https://cloud.google.com/iam/docs/creating-managing-service-accounts#iam-service-accounts-create-console
+5. Create new **JSON key** for the service account you created. https://cloud.google.com/iam/docs/creating-managing-service-account-keys
 ```
 from usttc import AsrClientFactory, AsrProvider
 
@@ -66,14 +85,19 @@ asr_client = AsrClientFactory.get_client_from_key_file(
 )
 ```
 ### AWS Transcribe
+1. Sign up for AWS. https://portal.aws.amazon.com/billing/signup#/start
+2. Create a S3 bucket. You can use the default setting. Please take a note of the **region** of your S3 bucket. https://docs.aws.amazon.com/AmazonS3/latest/userguide/create-bucket-overview.html
+3. Create a **User Group**. Attach **AmazonS3FullAccess** and **AmazonTranscribeFullAccess** permission to the group. https://docs.aws.amazon.com/IAM/latest/UserGuide/id_groups_create.html
+4. Add a **User** to the created **User Group**. Get user's **access key ID** and **secret access key**. https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html#id_users_create_console
 ```
 from usttc import AsrClientFactory, AsrProvider
 
 asr_client = AsrClientFactory.get_client_from_key(
     asr_provider=AsrProvider.AMAZON_AWS,
-    key="<>",
-    aws_secret_access_key="<>",
-    region_name='<>'
+    key="<YOUR_AWS_USER_ACCESS_KEY_ID>",
+    aws_secret_access_key="<YOUR_AWS_USER_SECRET_ACCESS_KEY>",
+    region_name='<YOUR_S3_BUCKET_REGION>',
+    s3_bucket='<YOUR_S3_BUCKET_NAME>'
 )
 ```
 ### Voicegain.ai
@@ -124,15 +148,27 @@ asr_client = AsrClientFactory.get_client_from_key(
 
 ## Usage
 
-### Transcribe Pre-Recorded Audio
+You can use USTTC to transcribe both pre-recorded audio file, or real-time audio stream.
 
+### Transcribe Pre-Recorded Audio
+Using USTTC, it's super easy to transcribe your audio file in (almost) **any format**.
 ```
-audio = AudioFile(file_path=file)
-result = asr_client.recognize(config, audio)
+from usttc.audio import AudioFile
+
+audio = AudioFile(file_path="<YOUR_AUDIO_FILE_PATH>")
+result = asr_client.recognize(audio)
+print(result.transcript)
 ```
 #### Diarization
-
+*Coming soon*
 #### Multi-Channel Audio
+*Coming soon*
+
+### Ensemble
+*This feature will be available soon*
+
+### Compare transcription result
+*This feature will be available soon*
 
 ### Transcribe Audio Stream
-Coming soon...
+*This feature will be available soon*
