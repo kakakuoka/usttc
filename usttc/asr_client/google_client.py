@@ -27,10 +27,16 @@ class GoogleClient(AsrClient):
             raise AudioException("Google does not support audio longer than 480 minutes")
 
         convert_audio = False
-        if (audio.codec not in {AudioFormat.LINEAR16, AudioFormat.FLAC, AudioFormat.MULAW, AudioFormat.AMR}) or \
-            ((audio.codec not in {AudioFormat.LINEAR16, AudioFormat.FLAC})
+        if audio.channels > 1 and not config.separate_speaker_per_channel:
+            audio = audio.convert(to_mono=True)
+            convert_audio = True
+        elif (
+                audio.codec not in {AudioFormat.LINEAR16, AudioFormat.FLAC, AudioFormat.MULAW, AudioFormat.AMR}
+            ) or (
+                (audio.codec not in {AudioFormat.LINEAR16, AudioFormat.FLAC})
                 and (audio.channels > 1)
-                and config.separate_speaker_per_channel):
+                and config.separate_speaker_per_channel
+            ):
             audio = audio.convert()
             convert_audio = True
 

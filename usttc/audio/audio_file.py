@@ -34,11 +34,14 @@ class AudioFile:
         if not self._valid:
             raise AudioException("Audio file is not valid")
 
-    def convert(self, to="wav", sample_rate=16000):
+    def convert(self, to="wav", sample_rate=16000, to_mono=False):
         file_dir, _ = os.path.split(self._file)
         new_file_path = os.path.join(file_dir, generate_random_str(10) + ".{}".format(to))
         stream = ffmpeg.input(self._file)
-        stream = ffmpeg.output(stream, new_file_path, **{'ar': str(sample_rate)})
+        kp = {'ar': str(sample_rate)}
+        if to_mono:
+            kp['ac'] = '1'
+        stream = ffmpeg.output(stream, new_file_path, **kp)
         ffmpeg.run(stream, capture_stdout=True, capture_stderr=True)
         return AudioFile(file_path=new_file_path)
 
