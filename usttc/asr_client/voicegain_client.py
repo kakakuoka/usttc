@@ -26,7 +26,7 @@ class VoicegainClient(AsrClient):
         self.transcribe_api = TranscribeApi(api_client)
         self.data_api = DataApi(api_client)
 
-    def recognize(self, config: Config, audio: AudioFile):
+    def recognize(self, audio: AudioFile, config: Config = Config()):
         if audio.file_size > OFFLINE_FILE_SIZE_LIMIT:
             raise AudioException("Audio file size is larger than 150MB. Voicegain does not support that")
         else:

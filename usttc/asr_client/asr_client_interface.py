@@ -7,7 +7,7 @@ from usttc.stream.stream import Stream
 class AsrClientInterface(ABC):
 
     @abstractmethod
-    def recognize(self, config: Config, audio: AudioFile):
+    def recognize(self, audio: AudioFile, config: Config = Config()):
         pass
 
     @abstractmethod

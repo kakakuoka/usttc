@@ -15,7 +15,7 @@ class RevClient(AsrClient):
     def __init__(self, client):
         self.client = client
 
-    def recognize(self, config: Config, audio: AudioFile):
+    def recognize(self, audio: AudioFile, config: Config = Config()):
         speaker_channels_count = None
         if config.separate_speaker_per_channel and audio.channels > 1:
             speaker_channels_count = audio.channels
