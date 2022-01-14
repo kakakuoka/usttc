@@ -4,7 +4,7 @@ from usttc.audio.audio_file import AudioFile, AudioFormat
 from usttc.result.recognize_result import RecognizeResult
 from usttc.result.word import Word
 from usttc.exceptions.exceptions import ConfigurationException, AudioException
-from usttc.utils import generate_random_str
+from usttc.utils.utils import generate_random_str
 from usttc.stream.stream_results import StreamResult, StreamResults
 from usttc.stream.stream import Stream
 from google.cloud import speech

@@ -8,7 +8,7 @@ from usttc.asr_client.asr_provider import AsrProvider
 import time
 import boto3
 import requests
-from usttc.utils import generate_random_str
+from usttc.utils.utils import generate_random_str
 
 
 AUDIO_DURATION_LIMIT = 4 * 60 * 60
