@@ -167,14 +167,45 @@ An audio file can contain multiple speakers in two ways.
 * mono audio. All speakers are mixed into the same channel. In this case, you need to configure **diarization** ([example](examples/transcribe_audio_file_diarization.py))
 
 Notes:
-1. If your audio is stereo, but both channels have the same audio, you should **NOT** configure **separate_speaker_per_channel**
+1. If your audio is stereo, but both channels have the same content, you should **NOT** configure **separate_speaker_per_channel**
 2. **DO NOT** use diarization if speakers are already separated by channel.
 
-### Compare transcription result
-*This feature will be available soon*
+### Compare transcription results
+To compare the results from multiple recognizers and know which one is more accurate for the application, 
+normally I'll start from reviewing a few results and have a sense of the weaknesses and strengths of each recognizer. 
+Sometimes, after I see a few examples, I can easily tell for a specific project, which recognizers work and which not.
+
+If you want to compare the result in a more scientific manner, you can prepare the gold standard reference, 
+and calculate **[Word Error Rate (WER)](https://en.wikipedia.org/wiki/Word_error_rate)** of the results from each STT provider. 
+However, calculating WER is not trivial, 
+because we don't want to penalize a recognizer if the difference (its result v.s. gold reference) is just the punctuation and capitalization. 
+Moreover, for a digit, it's both acceptable no matter whether using digit-format or spelled-out format. 
+
+#### transcribe-compare package
+[Voicegain.ai](https://www.voicegain.ai/) provides a python package called [transcribe-compare](https://pypi.org/project/transcribe-compare/) 
+to help you calculate WER (and do more than that). 
+It solves many issues when calculating WER, including punctuation, capitalization and digits mentioned above.
+You can install the module using Python Package Index using the command below.
+
+     pip install transcribe-compare
+
+We provide a simple [example](examples/calculate_wer_using_transcribe_compare.py) of using **USTTC** and **transcribe-compare** together.
+You can also check their [GitHub page](https://github.com/voicegain/transcription-compare) and read more examples about advanced use cases.
 
 ### Ensemble
-*This feature will be available soon*
+*[This feature will be available soon]*
+
+After you compare the results from multiple recognizers, 
+you might realize that none of them are prefect (It is cold and brute reality). 
+Different STT provider might make mistakes in different places.
+If your budget allows, you can run multiple recognizers at the same time, 
+and get higher accuracy by ensembling their results. 
+This feature is on our roadmap.
 
 ### Transcribe Audio Stream
-*This feature will be available soon*
+*[This feature will be available soon]*
+
+In some applications, it's important to stream the audio to the recognizer, 
+and get the result simultaneously. 
+All STT providers USTTC selected have the streaming feature. 
+The streaming wrapper will be available soon.
