@@ -2,14 +2,11 @@ from usttc.exceptions.exceptions import ConfigurationException
 
 
 class Config:
-    def __init__(self, language: str = "en-US", diarization: tuple = None, separate_speaker_per_channel: bool = False,
-                 google_storage_bucket: str = None, s3_bucket: str = None):
+    def __init__(self, language: str = "en-US", diarization: tuple = None, separate_speaker_per_channel: bool = False):
         """
         :param language:
         :param diarization: To enable diarization, set to tuple (min_speaker_count, max_speaker_count)
         :param separate_speaker_per_channel:
-        :param google_storage_bucket:
-        :param s3_bucket:
         """
         self.language = language
         if diarization and separate_speaker_per_channel:
@@ -27,5 +24,3 @@ class Config:
             if diarization[1] > 1:
                 self.diarization = diarization
         self.separate_speaker_per_channel = separate_speaker_per_channel
-        self.google_storage_bucket = google_storage_bucket
-        self.s3_bucket = s3_bucket

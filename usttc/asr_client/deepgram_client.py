@@ -15,7 +15,7 @@ class DeepgramClient(AsrClient):
     def __init__(self, client):
         self.client = client
 
-    def recognize(self, config: Config, audio: AudioFile):
+    def recognize(self, audio: AudioFile, config: Config = Config()):
         response = asyncio.run(self.async_recognize(config, audio))
         word_list = []
         results = response["results"]

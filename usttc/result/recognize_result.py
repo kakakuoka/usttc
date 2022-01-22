@@ -30,6 +30,22 @@ class RecognizeResult:
 
     @property
     def dialogue(self):
+        self._create_dialogue()
+        return self._dialogue
+
+    @property
+    def pretty_dialogue(self):
+        dialogue = self.dialogue
+        pretty_text_list = []
+        for paragraph in dialogue:
+            pretty_text_list.append("Speaker-{} : {}".format(paragraph.speaker, paragraph.text))
+        return "\n".join(pretty_text_list)
+
+    def get_dialogue(self, max_gap=None):
+        self._create_dialogue(max_gap)
+        return self._dialogue
+
+    def _create_dialogue(self, max_gap=None):
         def create_paragraph(word_list):
             text = " ".join([w.text for w in word_list])
             conf = 0
@@ -45,22 +61,16 @@ class RecognizeResult:
             self._dialogue = []
             current_para = []
             for word in self.words:
-                if (not current_para) or (current_para[-1].speaker == word.speaker):
+                if (not current_para) or (
+                        (current_para[-1].speaker == word.speaker) and
+                        ((not max_gap) or (word.start - current_para[-1].end <= max_gap))
+                ):
                     current_para.append(word)
                 else:
                     self._dialogue.append(create_paragraph(current_para))
                     current_para = [word]
             if current_para:
                 self._dialogue.append(create_paragraph(current_para))
-        return self._dialogue
-
-    @property
-    def pretty_dialogue(self):
-        dialogue = self.dialogue
-        pretty_text_list = []
-        for paragraph in dialogue:
-            pretty_text_list.append("Speaker-{} : {}".format(paragraph.speaker, paragraph.text))
-        return "\n".join(pretty_text_list)
 
     def to_json(self):
         if self.words:

@@ -8,7 +8,7 @@ from usttc.asr_client.asr_provider import AsrProvider
 import time
 import boto3
 import requests
-from usttc.utils import generate_random_str
+from usttc.utils.utils import generate_random_str
 
 
 AUDIO_DURATION_LIMIT = 4 * 60 * 60
@@ -18,13 +18,12 @@ FILE_SIZE_LIMIT = 2 * 1024 * 1024 * 1024
 class AwsClient(AsrClient):
     provider = AsrProvider.AMAZON_AWS
 
-    def __init__(self, s3_client, transcribe_client):
+    def __init__(self, s3_client, transcribe_client, s3_bucket):
         self.s3_client = s3_client
         self.transcribe_client = transcribe_client
+        self.s3_bucket = s3_bucket
 
-    def recognize(self, config: Config, audio: AudioFile):
-        if not config.s3_bucket:
-            raise ConfigurationException("Please provide s3_bucket in the config")
+    def recognize(self, audio: AudioFile, config: Config = Config()):
 
         if audio.duration > AUDIO_DURATION_LIMIT:
             raise AudioException("AWS does not support audio longer than 4 hours")
@@ -43,11 +42,11 @@ class AwsClient(AsrClient):
 
         s3_object_name = "{}{}".format(generate_random_str(20), audio.file_extension)
         self.s3_client.upload_file(
-            audio.file, config.s3_bucket, s3_object_name
+            audio.file, self.s3_bucket, s3_object_name
         )
 
         job_name = "job-{}".format(generate_random_str(20))
-        job_uri = "s3://{}/{}".format(config.s3_bucket, s3_object_name)
+        job_uri = "s3://{}/{}".format(self.s3_bucket, s3_object_name)
 
         settings = {}
         if config.diarization:
@@ -114,7 +113,7 @@ class AwsClient(AsrClient):
                 break
             time.sleep(5)
         self.transcribe_client.delete_transcription_job(TranscriptionJobName=job_name)
-        self.s3_client.delete_object(Bucket=config.s3_bucket, Key=s3_object_name)
+        self.s3_client.delete_object(Bucket=self.s3_bucket, Key=s3_object_name)
         if convert_audio:
             audio.delete()
         return RecognizeResult(words=word_list)
@@ -135,6 +134,9 @@ class AwsClient(AsrClient):
         region_name = kwargs.get("region_name")
         if not region_name:
             raise ConfigurationException("AWS ASR: Specify region_name arg")
+        s3_bucket = kwargs.get("s3_bucket")
+        if not s3_bucket:
+            raise ConfigurationException("AWS ASR: Specify s3_bucket arg")
         s3_client = boto3.client(
             's3',
             aws_access_key_id=aws_access_key_id,
@@ -145,4 +147,4 @@ class AwsClient(AsrClient):
             aws_access_key_id=aws_access_key_id,
             aws_secret_access_key=aws_secret_access_key,
             region_name=region_name)
-        return AwsClient(s3_client, transcribe_client)
+        return AwsClient(s3_client, transcribe_client, s3_bucket)

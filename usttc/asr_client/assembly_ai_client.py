@@ -14,7 +14,7 @@ class AssemblyAiClient(AsrClient):
     def __init__(self, token):
         self.token = token
 
-    def recognize(self, config: Config, audio: AudioFile):
+    def recognize(self, audio: AudioFile, config: Config = Config()):
 
         def read_file(filename, chunk_size=5242880):
             with open(filename, 'rb') as _file:

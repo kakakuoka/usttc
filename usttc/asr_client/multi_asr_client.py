@@ -12,10 +12,10 @@ class MultiAsrClient(AsrClientInterface):
         """
         self.asr_clients = asr_clients
 
-    def recognize(self, config: Config, audio: AudioFile):
+    def recognize(self, audio: AudioFile, config: Config = Config()):
         results_map = dict()
         for asr_client in self.asr_clients:
-            result = asr_client.recognize(config, audio)
+            result = asr_client.recognize(audio, config)
             results_map[asr_client.provider] = result
         return results_map
 

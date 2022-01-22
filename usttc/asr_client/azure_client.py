@@ -17,7 +17,7 @@ class AzureClient(AsrClient):
         self.key = key
         self.region = region
 
-    def recognize(self, config: Config, audio: AudioFile):
+    def recognize(self, audio: AudioFile, config: Config = Config()):
 
         if config.diarization:
             raise ConfigurationException("Azure python SDK does not support diarization. "
