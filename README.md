@@ -1,31 +1,31 @@
 # USTTC (Unified Speech-to-Text Client)
 
-This project provides a simple and unified client wrapper for multiple [Speech-to-test (STT)](https://en.wikipedia.org/wiki/Speech_recognition) providers on the basic use cases, 
+This project provides a simple and unified client wrapper 
+for multiple [Speech-to-test (STT)](https://en.wikipedia.org/wiki/Speech_recognition) providers on the basic use cases, 
 and gives users an easy way to switch and test among different providers.
 
 ## Background
 The accuracy of Speech-to-text (STT) improved significantly during the past few years. 
-There are a lot of cloud STT providers on the market, 
-including some big players like Google and AWS, 
-and a few ambitious new providers like Voicegain.ai and Assembly.ai. 
+There are a lot of cloud STT providers on the market, including some big players like Google and AWS, 
+and a few ambitious new providers like Voicegain.ai and Assembly.ai.
 
 As a Speech Recognition Scientist, I have reviewed many providers in the last few years, 
-and I have noticed that each provider has its unique features. 
-However, most users do not necessarily need those additional features, 
+and I have noticed that each provider has its own unique features. 
+However, the majority of users do not necessarily need those additional features, 
 especially in the early testing stage. 
-Their requirements are very simple and basic -- getting accurate transcript of the provided audio.
+Their requirements are very simple and basic -- getting an accurate transcript of the provided audio.
 
-In terms of my personal background, I am the Senior AI Scientist in Voicegain (specializing in Speech Recognition), 
-but USTTC is a personal project, and I try to do it without any bias. 
+Regarding my personal background, I am an Senior AI Scientist at Voicegain (specializing in Speech Recognition), 
+but this repository, USTTC, is a personal project, and I intend to work on it without any bias. 
 As mentioned, the goal of this project is to enable more people in the community to explore and test STT 
-without too much trouble of dealing with varied providers, APIs and documentations. 
+without too much trouble dealing with varied providers, APIs, and documentation. 
 
 
 ## Installation
 
 Please ensure that you have **ffmpeg** installed before install USTTC.
 
-You can install the module using Python Package Index using the command below.
+You can install the module using the Python Package Index using the command below.
 
     pip install usttc
 
@@ -38,16 +38,14 @@ Currently, USTTC supports the following 6 STT providers. We are going to include
 * [assembly.ai](https://www.assemblyai.com/)
 * [deepgram](https://deepgram.com/)
 
-We include these 6 providers, because all of them have comparable accuracy, 
-reasonable complete features, and easy-to-use client SDKs. 
-Now you need to decide which providers you want to test.
-This is truly an overwhelming task, 
-because there is no single right answer. 
-Each provider has its own strengths and weaknesses on different audio characteristics, 
-and also have different price strategy. 
-If you don't know which one is the best for your application,
-we suggest you should test all of them on your own audio samples to get a sense. 
-Fortunately, USTTC makes it very easy to test multiple providers using (almost) the same code.
+These six providers are included because they all have comparable accuracy, 
+reasonable complete features, and simple-to-use client SDKs. Now you need to decide which providers you want to test. 
+This is truly an overwhelming task, because there is no single right answer. 
+Each provider has unique strengths and weaknesses, as well as its own unique pricing strategy.
+If you don't know which one is best for your application, 
+we suggest you test all of them on your own audio samples to get a sense. Fortunately, 
+USTTC makes it very easy to test multiple providers using (almost) the same code, 
+which is also the original intention of USTTC.
 
 The following table shows the price of each provider, so that you can also choose based on your budget.
 
@@ -60,14 +58,14 @@ Provider Price Details<sup>[1]</sup> | $ per minute<sup>[2]</sup> | Free Tier pe
 [Assembly.ai](https://www.assemblyai.com/pricing) | $0.0150 | 180 minutes | No | 1 second | 1 second
 [Deepgram](https://deepgram.com/pricing/) | $0.0125 | No | 12,000 minutes ($150) | *Not clear* | *Not clear*
 
-*[1]: Price might change. Please check the pricing page for each provider*</br>
-*[2]: This is the pay-as-you-go price. All providers provide discount for high volumes*</br>
+*[1]: The price may change. Please check the pricing page for each provider*</br>
+*[2]: This is the pay-as-you-go price. All providers provide discounts for high volumes*</br>
 *[3]: You need to consider this if the average audio duration is shorter than 15s in your application*</br>
-*[4]: Google Cloud Free credits is shared among all cloud services, and is only for the first 90 days*</br>
-*[5]: AWS Free Tier is only for the first 12 months*
+*[4]: The Google Cloud Free credits are distributed across all cloud services and are only valid for the first 90 days*</br>
+*[5]: The AWS Free Tier is only available for the first 12 months*
 
 ## Create account on selected STT providers
-Once you decide which providers to test, you can create account on them following the steps below.
+Once you decide which providers to test, you can create an account with them by following the steps below.
 
 ### Google STT
 1. Sign up Google Cloud Platform. https://console.cloud.google.com/getting-started
@@ -148,10 +146,10 @@ asr_client = AsrClientFactory.get_client_from_key(
 
 ## Usage
 
-You can use USTTC to transcribe both pre-recorded audio file, or real-time audio stream.
+Both pre-recorded audio files and real-time audio streams can be transcribed with USTTC.
 
 ### Transcribe Pre-Recorded Audio
-Using USTTC, it's super easy to transcribe your audio file in (almost) **any format**.
+Using USTTC, it's super easy to transcribe your audio file in (almost) **any format**. [Here](examples/transcribe_audio_file_basic.py) is an end-to-end example of an .wav audio as the input. 
 ```
 from usttc.audio import AudioFile
 
@@ -159,53 +157,43 @@ audio = AudioFile(file_path="<YOUR_AUDIO_FILE_PATH>")
 result = asr_client.recognize(audio)
 print(result.transcript)
 ```
-You can find an end-to-end example [here](examples/transcribe_audio_file_basic.py)
+
 
 #### Multiple Speakers
 An audio file can contain multiple speakers in two ways.
-* multi-channel audio. Each channel has one speaker. (We only support stereo audio). In this case, you need to configure **separate_speaker_per_channel** ([example](examples/transcribe_audio_file_multi_channel.py))
-* mono audio. All speakers are mixed into the same channel. In this case, you need to configure **diarization** ([example](examples/transcribe_audio_file_diarization.py))
+* Multi-channel audio: Each channel has one speaker. (We only support stereo audio). In this case, you need to configure **separate_speaker_per_channel** ([example](examples/transcribe_audio_file_multi_channel.py))
+* Mono audio: All speakers are mixed on the same channel. In this case, you need to configure **diarization** ([example](examples/transcribe_audio_file_diarization.py))
 
-Notes:
-1. If your audio is stereo, but both channels have the same content, you should **NOT** configure **separate_speaker_per_channel**
+Please note here:
+1. If your audio is stereo but both channels have the same content, you should **NOT** configure **separate_speaker_per_channel**.
 2. **DO NOT** use diarization if speakers are already separated by channel.
 
 ### Compare transcription results
-To compare the results from multiple recognizers and know which one is more accurate for the application, 
-normally I'll start from reviewing a few results and have a sense of the weaknesses and strengths of each recognizer. 
-Sometimes, after I see a few examples, I can easily tell for a specific project, which recognizers work and which not.
+To compare the results from multiple recognizers and know which one is more accurate for the application, I'll normally start by reviewing a few results and getting a sense of the weaknesses and strengths of each recognizer. Sometimes, after I see a few examples, I can easily tell for a specific project which recognizers work and which do not.
 
-If you want to compare the result in a more scientific manner, you can prepare the gold standard reference, 
-and calculate **[Word Error Rate (WER)](https://en.wikipedia.org/wiki/Word_error_rate)** of the results from each STT provider. 
-However, calculating WER is not trivial, 
-because we don't want to penalize a recognizer if the difference (its result v.s. gold reference) is just the punctuation and capitalization. 
-Moreover, for a digit, it's both acceptable no matter whether using digit-format or spelled-out format. 
+If you want to compare the results in a more scientific manner, you can prepare the gold standard reference and calculate **[Word Error Rate (WER)](https://en.wikipedia.org/wiki/Word_error_rate)** of the results from each STT provider. However, calculating WER is not trivial, because we don't want to penalize a recognizer if the difference (its result vs. the gold reference) is just the punctuation and capitalization. Moreover, for a digit, it's both acceptable no matter whether using digit-format or spelled-out format.
+
 
 #### transcribe-compare package
 [Voicegain.ai](https://www.voicegain.ai/) provides a python package called [transcribe-compare](https://pypi.org/project/transcribe-compare/) 
 to help you calculate WER (and do more than that). 
-It solves many issues when calculating WER, including punctuation, capitalization and digits mentioned above.
-You can install the module using Python Package Index using the command below.
+It solves many issues when calculating WER, including punctuation, capitalization, and digits mentioned above.
+You can install the module using the Python Package Index using the command below.
 
      pip install transcribe-compare
 
 We provide a simple [example](examples/calculate_wer_using_transcribe_compare.py) of using **USTTC** and **transcribe-compare** together.
-You can also check their [GitHub page](https://github.com/voicegain/transcription-compare) and read more examples about advanced use cases.
+You can also check their [GitHub page](https://github.com/voicegain/transcription-compare) for more examples of advanced use cases.
 
 ### Ensemble
 *[This feature will be available soon]*
 
-After you compare the results from multiple recognizers, 
-you might realize that none of them are prefect (It is cold and brute reality). 
-Different STT provider might make mistakes in different places.
-If your budget allows, you can run multiple recognizers at the same time, 
-and get higher accuracy by ensembling their results. 
-This feature is on our roadmap.
+After you compare the results from multiple recognizers, you might realize that none of them is perfect (it is a cold and brute reality). Different STT providers might make mistakes in different places. If your budget allows, you can run multiple recognizers at the same time and get higher accuracy by ensembling their results. This feature is on our roadmap.
 
 ### Transcribe Audio Stream
 *[This feature will be available soon]*
 
-In some applications, it's important to stream the audio to the recognizer, 
+In some applications (e.g. real-time), it's important to stream the audio to the recognizer
 and get the result simultaneously. 
-All STT providers USTTC selected have the streaming feature. 
+All the STT providers that USTTC selected have the streaming feature. 
 The streaming wrapper will be available soon.
