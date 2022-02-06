@@ -3,6 +3,10 @@ from usttc.ensemble.comparable_word import ComparableWord
 
 
 class ComparableResult:
+    """
+    The result that can compare with another ComparableResult
+    Each ComparableResult contains a list of ComparablePhrase
+    """
     def __init__(self, result: RecognizeResult = None, provider=None):
         self.phrases = []
         if result and result.words:

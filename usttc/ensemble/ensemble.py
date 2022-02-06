@@ -2,12 +2,17 @@ from usttc.ensemble.comparable_result import ComparableResult
 from usttc.ensemble.comparable_word import ComparableWord
 from usttc.ensemble.comparable_diff_word import ComparableDiffWord
 
+
 class Ensemble:
     def __init__(self):
         pass
 
+    def ensemble(self, result_1: ComparableResult, result_2: ComparableResult):
+        new_comparable_result = self._ensemble_two_comparable_result(result_1, result_2)
+        return new_comparable_result
+
     @staticmethod
-    def ensemble(result_1: ComparableResult, result_2: ComparableResult):
+    def _ensemble_two_comparable_result(result_1: ComparableResult, result_2: ComparableResult):
         if len(result_1) > len(result_2):
             result_1, result_2 = result_2, result_1
 
@@ -80,7 +85,7 @@ class Ensemble:
                 add_words_to_diff_provider_list_map([result_1[col_i - 1]])
                 col_i -= 1
             else:
-                add_words_to_diff_provider_list_map([result_2[col_i - 1]])
+                add_words_to_diff_provider_list_map([result_2[row_i - 1]])
                 row_i -= 1
 
         if diff_provider_list_map:
