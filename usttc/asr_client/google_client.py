@@ -114,6 +114,12 @@ class GoogleClient(AsrClient):
             recognition_config.enable_separate_recognition_per_channel = True
             recognition_config.audio_channel_count = audio.channels
 
+        if config.hints:
+            speech_context = speech.SpeechContext(
+                phrases=config.hints
+            )
+            recognition_config.speech_contexts = [speech_context]
+
         operation = self.client.long_running_recognize(config=recognition_config, audio=recog_audio)
         response = operation.result()
         words = []
