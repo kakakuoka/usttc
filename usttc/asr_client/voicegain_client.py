@@ -60,23 +60,25 @@ class VoicegainClient(AsrClient):
                     "content": {
                         "full": ["progress", "words", "transcript"]
                     }
+                    # "vadMode": "disabled"
                 }
             ],
             "audio": {
                 "source": audio_source
+            },
+            "settings": {
+                "asr": {
+                    "languages": [config.language[:2]]
+                }
             }
         }
 
         if config.diarization:
             min_spk_count = config.diarization[0]
             max_spk_count = config.diarization[1]
-            async_transcription_request["settings"] = {
-                "asr": {
-                    "diarization": {
-                        "minSpeakers": min(max(1, min_spk_count), 10),
-                        "maxSpeakers": min(max(1, max_spk_count), 10)
-                    }
-                }
+            async_transcription_request["settings"]["asr"]["diarization"] = {
+                "minSpeakers": min(max(1, min_spk_count), 10),
+                "maxSpeakers": min(max(1, max_spk_count), 10)
             }
 
         def _get_result_resp(request):

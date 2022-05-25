@@ -34,7 +34,8 @@ class AssemblyAiClient(AsrClient):
         json = {
             "audio_url": audio_url,
             "speaker_labels": (config.diarization is not None),
-            "dual_channel": dual_channel
+            "dual_channel": dual_channel,
+            "language_code": config.language[:2]
         }
 
         response = requests.post(endpoint, json=json, headers=headers)

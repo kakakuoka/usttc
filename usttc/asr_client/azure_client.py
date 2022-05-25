@@ -7,6 +7,7 @@ from usttc.exceptions.exceptions import ConfigurationException, AudioException
 from usttc.asr_client.asr_provider import AsrProvider
 import azure.cognitiveservices.speech as speechsdk
 import json
+import time
 import logging
 
 
@@ -27,7 +28,8 @@ class AzureClient(AsrClient):
                                          "Will switch to batch transcription API later on")
 
         speech_config = speechsdk.SpeechConfig(subscription=self.key,
-                                               region=self.region)
+                                               region=self.region,
+                                               speech_recognition_language=config.language)
         speech_config.request_word_level_timestamps()
 
         convert_audio = False
@@ -38,25 +40,43 @@ class AzureClient(AsrClient):
         audio_input = speechsdk.AudioConfig(filename=audio.file)
         speech_recognizer = speechsdk.SpeechRecognizer(speech_config=speech_config, audio_config=audio_input)
 
-        result = speech_recognizer.recognize_once_async().get()
-        transcript = result.text
-        n_best = json.loads(result.json).get("NBest")
+        done = {}
         words = []
-        if n_best:
-            top_1 = n_best[0]
-            confidence = top_1["Confidence"]
-            for w in top_1["Words"]:
-                words.append(
-                    Word(
-                        text=w["Word"], confidence=confidence,
-                        start=w["Offset"] / 10000,
-                        duration=w["Duration"] / 10000
-                    )
-                )
+        transcripts = []
+
+        def stop_cb(evt):
+            speech_recognizer.stop_continuous_recognition()
+            done["done"] = True
+
+        def recognized_cb(evt):
+            if evt.result.reason == speechsdk.ResultReason.RecognizedSpeech:
+                result = evt.result
+                transcripts.append(result.text)
+                n_best = json.loads(result.json).get("NBest")
+                if n_best:
+                    top_1 = n_best[0]
+                    confidence = top_1["Confidence"]
+                    for w in top_1["Words"]:
+                        words.append(
+                            Word(
+                                text=w["Word"], confidence=confidence,
+                                start=w["Offset"] / 10000,
+                                duration=w["Duration"] / 10000
+                            )
+                        )
+
+        speech_recognizer.recognized.connect(recognized_cb)
+        speech_recognizer.session_stopped.connect(stop_cb)
+        speech_recognizer.canceled.connect(stop_cb)
+
+        # Start continuous speech recognition
+        speech_recognizer.start_continuous_recognition()
+        while not done:
+            time.sleep(.5)
 
         if convert_audio:
             audio.delete()
-        return RecognizeResult(transcript=transcript, words=words)
+        return RecognizeResult(transcript=" ".join(transcripts), words=words)
 
     def stream(self):
         pass

@@ -22,7 +22,8 @@ class RevClient(AsrClient):
         job = self.client.submit_job_local_file(
             audio.file,
             skip_diarization=(config.diarization is None),
-            speaker_channels_count=speaker_channels_count
+            speaker_channels_count=speaker_channels_count,
+            language=config.language[:2]
         )
 
         while True:

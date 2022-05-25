@@ -49,7 +49,8 @@ class DeepgramClient(AsrClient):
                 {
                     'punctuate': True,
                     "diarize": (config.diarization is not None),
-                    "multichannel": config.separate_speaker_per_channel and (audio.channels > 1)
+                    "multichannel": config.separate_speaker_per_channel and (audio.channels > 1),
+                    'language': config.language
                 }
             )
             return response
