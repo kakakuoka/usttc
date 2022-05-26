@@ -17,10 +17,11 @@ AUDIO_DURATION_LIMIT = 480 * 60
 class GoogleClient(AsrClient):
     provider = AsrProvider.GOOGLE
 
-    def __init__(self, client, storage_client, google_storage_bucket):
+    def __init__(self, client, storage_client, google_storage_bucket, google_model):
         self.client = client
         self.storage_client = storage_client
         self.google_storage_bucket = google_storage_bucket
+        self.google_model = google_model
 
     def recognize(self, audio: AudioFile, config: Config = Config()):
         if audio.duration >= AUDIO_DURATION_LIMIT:
@@ -96,7 +97,7 @@ class GoogleClient(AsrClient):
             encoding=audio.codec.name,
             sample_rate_hertz=audio.sample_rate,
             language_code=config.language,
-            model="video",
+            model=self.google_model,
             use_enhanced=True,
             enable_word_time_offsets=True,
             enable_automatic_punctuation=True
@@ -149,9 +150,12 @@ class GoogleClient(AsrClient):
         google_storage_bucket = kwargs.get("google_storage_bucket")
         if not google_storage_bucket:
             raise ConfigurationException("Google ASR: Specify google_storage_bucket arg")
+        google_model = kwargs.get("google_model")
+        if google_model is None:
+            google_model = "video"
         client = speech.SpeechClient.from_service_account_file(filename)
         storage_client = storage.Client.from_service_account_json(filename)
-        return GoogleClient(client, storage_client, google_storage_bucket)
+        return GoogleClient(client, storage_client, google_storage_bucket, google_model)
 
     @staticmethod
     def from_key(key: str, *args, **kwargs):
