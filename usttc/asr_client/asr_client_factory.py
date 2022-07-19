@@ -6,6 +6,7 @@ from usttc.asr_client.assembly_ai_client import AssemblyAiClient
 from usttc.asr_client.azure_client import AzureClient
 from usttc.asr_client.rev_client import RevClient
 from usttc.asr_client.deepgram_client import DeepgramClient
+from usttc.asr_client.riva_client import RivaClient
 
 
 class AsrClientFactory:
@@ -27,7 +28,8 @@ class AsrClientFactory:
             AsrProvider.REV: RevClient,
             AsrProvider.DEEPGRAM: DeepgramClient,
             AsrProvider.ASSEMBLY_AI: AssemblyAiClient,
-            AsrProvider.MICROSOFT_AZURE: AzureClient
+            AsrProvider.MICROSOFT_AZURE: AzureClient,
+            AsrProvider.RIVA: RivaClient
         }
         return provider_map.get(asr_provider)
 

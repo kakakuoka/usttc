@@ -9,3 +9,4 @@ class AsrProvider(Enum):
     REV = 5
     DEEPGRAM = 6
     ASSEMBLY_AI = 7
+    RIVA = 8
