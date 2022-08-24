@@ -8,11 +8,11 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="usttc",
-    version="0.0.6",
+    version="0.0.7",
     author="Kuo Zhang",
     author_email="kuo.zh92@gmail.com",
     description="Unified Speech-to-text Client",
-    download_url='https://github.com/kakakuoka/usttc/archive/refs/tags/v0.0.6.tar.gz',
+    download_url='https://github.com/kakakuoka/usttc/archive/refs/tags/v0.0.7.tar.gz',
     long_description=long_description,
     long_description_content_type="text/markdown",
     install_requires=requirements,

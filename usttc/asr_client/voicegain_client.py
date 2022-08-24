@@ -206,6 +206,9 @@ class VoicegainClient(AsrClient):
     @staticmethod
     def from_key(key: str, *args, **kwargs):
         configuration = Configuration()
+        host = kwargs.get("host")
+        if host:
+            configuration.host = host
         configuration.access_token = key
         api_client = ApiClient(configuration=configuration)
         return VoicegainClient(api_client)
