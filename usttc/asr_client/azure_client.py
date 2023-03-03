@@ -9,6 +9,7 @@ import azure.cognitiveservices.speech as speechsdk
 import json
 import time
 import logging
+import threading
 
 
 class AzureClient(AsrClient):
@@ -17,6 +18,19 @@ class AzureClient(AsrClient):
     def __init__(self, key, region):
         self.key = key
         self.region = region
+        self.speech_config_map = dict()
+        self.lock = threading.Lock()
+
+    def get_speech_config(self, lang):
+        with self.lock:
+            if lang not in self.speech_config_map:
+                speech_config = speechsdk.SpeechConfig(subscription=self.key,
+                                                       region=self.region,
+                                                       speech_recognition_language=lang)
+                speech_config.request_word_level_timestamps()
+                self.speech_config_map[lang] = speech_config
+                logging.info("Generate Speech config for lang {}".format(lang))
+            return self.speech_config_map[lang]
 
     def recognize(self, audio: AudioFile, config: Config = Config()):
 
@@ -27,10 +41,7 @@ class AzureClient(AsrClient):
             raise ConfigurationException("Azure python SDK does not support multi-channel audio. "
                                          "Will switch to batch transcription API later on")
 
-        speech_config = speechsdk.SpeechConfig(subscription=self.key,
-                                               region=self.region,
-                                               speech_recognition_language=config.language)
-        speech_config.request_word_level_timestamps()
+        speech_config = self.get_speech_config(config.language)
 
         convert_audio = False
         if audio.codec != AudioFormat.LINEAR16:
@@ -73,6 +84,12 @@ class AzureClient(AsrClient):
         speech_recognizer.start_continuous_recognition()
         while not done:
             time.sleep(.5)
+
+        speech_recognizer.stop_continuous_recognition()
+        speech_recognizer.canceled.disconnect_all()
+        speech_recognizer.recognized.disconnect_all()
+        speech_recognizer.session_stopped.disconnect_all()
+        del speech_recognizer
 
         if convert_audio:
             audio.delete()

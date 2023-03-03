@@ -3,7 +3,7 @@ from usttc.config import Config
 from usttc.audio.audio_file import AudioFile
 from usttc.result.recognize_result import RecognizeResult
 from usttc.result.word import Word
-from usttc.exceptions.exceptions import AudioException
+from usttc.exceptions.exceptions import AudioException, ASRException
 from usttc.stream.stream import Stream
 from usttc.asr_client.asr_provider import AsrProvider
 from voicegain_speech import ApiClient
@@ -21,8 +21,9 @@ OFFLINE_FILE_SIZE_LIMIT = 150 * 1024 * 1024
 class VoicegainClient(AsrClient):
     provider = AsrProvider.VOICEGAIN
 
-    def __init__(self, api_client):
+    def __init__(self, api_client, model=None):
         self.api_client = api_client
+        self.model = model
         self.transcribe_api = TranscribeApi(api_client)
         self.data_api = DataApi(api_client)
 
@@ -80,6 +81,8 @@ class VoicegainClient(AsrClient):
                 "minSpeakers": min(max(1, min_spk_count), 10),
                 "maxSpeakers": min(max(1, max_spk_count), 10)
             }
+        if self.model:
+            async_transcription_request["settings"]["asr"]["acousticModelNonRealTime"] = self.model
 
         def _get_result_resp(request):
             async_transcribe_init_response = self.transcribe_api.asr_transcribe_async_post(
@@ -98,6 +101,8 @@ class VoicegainClient(AsrClient):
                 poll_response_result = poll_response.result
 
                 if poll_response_result.final:
+                    if poll_response_result.status == "ERROR":
+                        raise ASRException("Get ERROR in final response")
                     return poll_response_result
                 else:
                     pass
@@ -211,4 +216,4 @@ class VoicegainClient(AsrClient):
             configuration.host = host
         configuration.access_token = key
         api_client = ApiClient(configuration=configuration)
-        return VoicegainClient(api_client)
+        return VoicegainClient(api_client, model=kwargs.get("model"))
